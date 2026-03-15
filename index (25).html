@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Maji Safi — Hydrate. Elevate.</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,700;0,800;0,900;1,700;1,800;1,900&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --blue:#0077B6; --blue-mid:#0096D6; --blue-bright:#33B5E5;
+      --sky:#7EC8E3; --light:#CAF0F8; --light2:#D8F0FA; --light3:#E8F7FC;
+      --white:#FFFFFF; --ink:#02111A; --gray:#5A7080;
+    }
+    html{scroll-behavior:smooth;}
+    body{background:var(--light3);color:var(--ink);font-family:'Open Sans',sans-serif;overflow-x:hidden;}
+    ::-webkit-scrollbar{width:3px;}
+    ::-webkit-scrollbar-track{background:var(--light);}
+    ::-webkit-scrollbar-thumb{background:var(--blue);border-radius:2px;}
+
+    /* ─── NAV ─── */
+    nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:20px 72px;display:flex;align-items:center;transition:all .4s;}
+    nav.scrolled{background:rgba(0,60,100,.97);backdrop-filter:blur(16px);padding:14px 72px;border-bottom:1px solid rgba(126,200,227,.15);}
+    .nav-logo{font-family:'Montserrat',sans-serif;font-size:21px;font-weight:900;font-style:italic;color:white;text-decoration:none;letter-spacing:2px;text-shadow:0 2px 20px rgba(0,0,0,.2);}
+    .nav-links{display:flex;gap:40px;margin-left:auto;list-style:none;align-items:center;}
+    .nav-links a{color:rgba(255,255,255,.75);text-decoration:none;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;transition:color .2s;}
+    .nav-links a:hover{color:white;}
+    .nav-cta{background:white!important;color:var(--blue)!important;padding:9px 24px!important;border-radius:30px!important;font-weight:800!important;box-shadow:0 4px 18px rgba(0,0,0,.15);transition:all .3s!important;}
+    .nav-cta:hover{transform:translateY(-2px) scale(1.04)!important;}
+
+    /* ─── HERO ─── */
+    #hero{position:relative;height:100vh;overflow:hidden;
+      background:linear-gradient(160deg,#004080 0%,var(--blue) 45%,var(--blue-bright) 75%,var(--sky) 100%);
+      display:flex;align-items:center;}
+    #hero-canvas{position:absolute;inset:0;z-index:0;}
+    .hero-inner{position:relative;z-index:3;display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:40px;max-width:1280px;width:100%;padding:0 72px;margin:0 auto;}
+    .hero-eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:11px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:white;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.28);border-radius:30px;padding:7px 18px;margin-bottom:24px;opacity:0;transform:translateY(20px);}
+    .hero-dot{width:7px;height:7px;border-radius:50%;background:white;animation:hpulse 2s infinite;}
+    @keyframes hpulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.6)}}
+    .hero-name{font-family:'Montserrat',sans-serif;font-size:clamp(68px,10vw,124px);font-weight:900;font-style:italic;line-height:.86;letter-spacing:-4px;color:white;text-shadow:0 4px 40px rgba(0,0,0,.15);opacity:0;transform:translateY(30px);}
+    .hero-name .l2{display:block;color:rgba(255,255,255,.85);-webkit-text-stroke:1.5px rgba(255,255,255,.3);}
+    .hero-tagline{font-family:'Montserrat',sans-serif;font-size:clamp(15px,2vw,22px);font-weight:800;letter-spacing:6px;text-transform:uppercase;color:rgba(255,255,255,.85);margin-top:18px;margin-bottom:28px;opacity:0;transform:translateY(20px);}
+    .hero-sub{font-size:14px;color:rgba(255,255,255,.6);line-height:1.75;max-width:400px;margin-bottom:36px;opacity:0;}
+    .hero-btns{display:flex;gap:12px;opacity:0;transform:translateY(10px);flex-wrap:wrap;}
+    .btn-white{padding:15px 38px;background:white;color:var(--blue);border:none;border-radius:50px;font-family:'Montserrat',sans-serif;font-weight:800;font-size:13px;letter-spacing:2px;text-transform:uppercase;text-decoration:none;transition:all .3s;box-shadow:0 8px 30px rgba(0,0,0,.15);}
+    .btn-white:hover{transform:translateY(-3px);box-shadow:0 16px 44px rgba(0,0,0,.25);}
+    .btn-ghost{padding:15px 38px;background:transparent;color:white;border:2px solid rgba(255,255,255,.45);border-radius:50px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;text-decoration:none;transition:all .3s;}
+    .btn-ghost:hover{border-color:white;background:rgba(255,255,255,.1);transform:translateY(-3px);}
+
+    /* Hero right — clear PET bottles */
+    .hero-right{display:flex;justify-content:center;align-items:flex-end;opacity:0;transform:translateX(40px);position:relative;}
+    .bottles-row{display:flex;align-items:flex-end;gap:28px;position:relative;}
+    .bot-wrap{display:flex;flex-direction:column;align-items:center;}
+    .bot-lbl{font-family:'Montserrat',sans-serif;font-size:10px;font-weight:800;color:rgba(255,255,255,.65);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
+    .bot-float{animation:botFloat 4s ease-in-out infinite;}
+    .bot-float-2{animation:botFloat 4s ease-in-out infinite;animation-delay:-2s;}
+    @keyframes botFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+    .bot-shadow{border-radius:50%;background:radial-gradient(ellipse,rgba(0,0,0,.22),transparent 70%);animation:shadowP 4s ease-in-out infinite;margin-top:6px;}
+    @keyframes shadowP{0%,100%{transform:scaleX(1);opacity:.5}50%{transform:scaleX(.7);opacity:.2}}
+    .tap-hint{white-space:nowrap;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:20px;padding:5px 14px;backdrop-filter:blur(8px);font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;color:rgba(255,255,255,.7);letter-spacing:1px;margin-top:8px;}
+    .hero-badge{position:absolute;top:10px;right:-15px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:14px;padding:10px 14px;backdrop-filter:blur(10px);}
+    .hb-title{font-family:'Montserrat',sans-serif;font-size:10px;font-weight:800;color:white;letter-spacing:1px;}
+    .hb-sub{font-size:9px;color:rgba(255,255,255,.6);margin-top:2px;}
+    .hero-stats{position:absolute;bottom:-56px;left:50%;transform:translateX(-50%);display:flex;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.2);border-radius:14px;padding:12px 20px;backdrop-filter:blur(12px);white-space:nowrap;gap:0;}
+    .hs{text-align:center;padding:0 18px;border-right:1px solid rgba(255,255,255,.2);}
+    .hs:last-child{border-right:none;}
+    .hs-num{font-family:'Montserrat',sans-serif;font-size:20px;font-weight:900;color:white;line-height:1;}
+    .hs-lbl{font-size:9px;color:rgba(255,255,255,.5);letter-spacing:1px;margin-top:3px;}
+
+    .scroll-hint{position:absolute;bottom:32px;left:72px;z-index:3;display:flex;align-items:center;gap:12px;opacity:0;color:rgba(255,255,255,.5);font-size:11px;letter-spacing:3px;text-transform:uppercase;}
+    .svline{width:1px;height:44px;background:linear-gradient(to bottom,rgba(255,255,255,.7),transparent);animation:vg 2s ease-in-out infinite;}
+    @keyframes vg{0%,100%{opacity:.4;height:36px}50%{opacity:1;height:50px}}
+
+    /* ─── MARQUEE ─── */
+    .mq-wrap{background:var(--blue);padding:15px 0;overflow:hidden;border-bottom:1px solid rgba(255,255,255,.1);}
+    .mq-track{display:flex;white-space:nowrap;animation:mqscroll 32s linear infinite;}
+    @keyframes mqscroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+    .mq-item{display:inline-flex;align-items:center;gap:16px;padding:0 30px;font-family:'Montserrat',sans-serif;font-size:12px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:white;}
+    .mq-dot{width:4px;height:4px;border-radius:50%;background:var(--sky);opacity:.7;}
+
+    /* ─── CERT BAR ─── */
+    .cert-bar{background:var(--light2);padding:24px 72px;border-bottom:2px solid rgba(0,119,182,.1);}
+    .cert-bar-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;}
+    .ci{display:flex;align-items:center;gap:14px;opacity:0;transform:translateY(10px);}
+    .ci-icon{width:48px;height:48px;border-radius:12px;background:var(--blue);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .ci-icon svg{width:22px;height:22px;}
+    .ci-title{font-family:'Montserrat',sans-serif;font-size:14px;font-weight:800;color:var(--ink);}
+    .ci-sub{font-size:11px;color:var(--gray);margin-top:2px;}
+    .ci-div{width:1px;height:36px;background:rgba(0,119,182,.15);}
+
+    /* ─── STATEMENT ─── */
+    .statement-wrap{padding:80px 72px;max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;}
+    .sk{font-size:11px;font-weight:700;letter-spacing:5px;text-transform:uppercase;color:var(--blue);margin-bottom:16px;opacity:0;transform:translateY(20px);}
+    .sh{font-family:'Montserrat',sans-serif;font-size:clamp(36px,4.5vw,60px);font-weight:900;font-style:italic;line-height:.92;letter-spacing:-2px;color:var(--ink);margin-bottom:24px;opacity:0;transform:translateY(20px);}
+    .sh span{color:var(--blue);}
+    .sb{font-size:15px;color:var(--gray);line-height:1.85;opacity:0;transform:translateY(20px);}
+    .sb strong{color:var(--ink);font-weight:600;}
+    .dg{display:grid;grid-template-columns:1fr 1fr;gap:14px;opacity:0;transform:translateX(30px);}
+    .dc{border-radius:20px;padding:24px 22px;position:relative;overflow:hidden;transition:transform .3s;cursor:default;}
+    .dc:hover{transform:translateY(-4px);}
+    .dc.a{background:var(--blue);}
+    .dc.b{background:var(--sky);margin-top:20px;}
+    .dc.c{background:var(--light);}
+    .dc.d{background:var(--ink);margin-top:20px;}
+    .dc-val{font-family:'Montserrat',sans-serif;font-size:44px;font-weight:900;line-height:1;margin-bottom:5px;}
+    .dc.a .dc-val{color:white;} .dc.b .dc-val{color:var(--ink);} .dc.c .dc-val{color:var(--blue);} .dc.d .dc-val{color:var(--sky);}
+    .dc-unit{font-size:13px;font-weight:700;vertical-align:super;}
+    .dc.a .dc-unit{color:rgba(255,255,255,.55);} .dc.b .dc-unit{color:rgba(2,17,26,.5);} .dc.c .dc-unit{color:var(--sky);} .dc.d .dc-unit{color:rgba(126,200,227,.6);}
+    .dc-lbl{font-size:13px;line-height:1.4;}
+    .dc.a .dc-lbl{color:rgba(255,255,255,.6);} .dc.b .dc-lbl{color:rgba(2,17,26,.6);} .dc.c .dc-lbl{color:var(--gray);} .dc.d .dc-lbl{color:rgba(126,200,227,.65);}
+    .dc-ghost{position:absolute;right:-8px;bottom:-16px;font-family:'Montserrat',sans-serif;font-size:80px;font-weight:900;opacity:.07;line-height:1;pointer-events:none;color:white;}
+    .dc.b .dc-ghost,.dc.c .dc-ghost{color:var(--blue);}
+    .bar-w{margin-top:12px;} .bar-l{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:5px;}
+    .bar-t{background:rgba(255,255,255,.12);border-radius:4px;height:4px;}
+    .bar-f{height:4px;border-radius:4px;background:rgba(255,255,255,.75);width:0;transition:width 1.6s cubic-bezier(.25,.46,.45,.94);}
+
+    /* ─── PRODUCTS ─── */
+    #products{background:linear-gradient(180deg,#003F6B 0%,var(--blue) 100%);padding:80px 72px;}
+    .prod-inner{max-width:1280px;margin:0 auto;}
+    .prod-hdr{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:56px;gap:24px;}
+    .pk{font-size:11px;font-weight:700;letter-spacing:5px;text-transform:uppercase;color:var(--light);margin-bottom:14px;opacity:0;transform:translateY(20px);}
+    .ph{font-family:'Montserrat',sans-serif;font-size:clamp(32px,4vw,54px);font-weight:900;font-style:italic;line-height:.95;letter-spacing:-2px;color:white;opacity:0;transform:translateY(20px);}
+    .ph span{color:var(--light);}
+    .phn{font-size:13px;color:rgba(255,255,255,.35);max-width:180px;text-align:right;line-height:1.6;opacity:0;}
+    .pgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+
+    /* Product card */
+    .pcard{background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.12);border-radius:24px;overflow:hidden;cursor:pointer;transition:all .4s cubic-bezier(.25,.46,.45,.94);opacity:0;transform:translateY(40px);}
+    .pcard:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.35);transform:translateY(-10px);box-shadow:0 20px 50px rgba(0,0,0,.25);}
+    .pcard.featured{background:rgba(255,255,255,.13);border-color:rgba(202,240,248,.4);}
+    .pcard.featured:hover{border-color:var(--light);box-shadow:0 20px 50px rgba(0,0,0,.3);}
+
+    .pc-bot{padding:28px 16px 8px;display:flex;justify-content:center;align-items:flex-end;background:rgba(255,255,255,.04);min-height:220px;position:relative;}
+    .pc-bot-anim{animation:botFloat 4s ease-in-out infinite;}
+    .pc-badge{position:absolute;top:12px;left:12px;font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;background:rgba(255,255,255,.15);color:white;padding:4px 11px;border-radius:20px;}
+    .pcard.featured .pc-badge{background:rgba(202,240,248,.2);color:var(--light);}
+
+    .pc-body{padding:18px 20px 20px;}
+    .pc-name{font-family:'Montserrat',sans-serif;font-size:18px;font-weight:800;color:white;margin-bottom:6px;}
+    .pc-desc{font-size:12px;color:rgba(255,255,255,.5);line-height:1.6;margin-bottom:16px;}
+    .pc-price-row{display:flex;align-items:baseline;gap:5px;margin-bottom:4px;}
+    .pc-from{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--sky);}
+    .pc-price{font-family:'Montserrat',sans-serif;font-size:30px;font-weight:900;color:white;line-height:1;}
+    .pc-cur{font-size:12px;font-weight:700;color:rgba(255,255,255,.4);}
+    .pc-del{display:flex;align-items:center;gap:7px;font-size:12px;color:rgba(255,255,255,.4);margin-bottom:14px;}
+    .pc-del-dot{width:5px;height:5px;border-radius:50%;background:var(--sky);flex-shrink:0;}
+    .pc-btn{width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:9px;text-align:center;font-family:'Montserrat',sans-serif;font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.4);cursor:pointer;transition:all .3s;}
+    .pcard:hover .pc-btn{background:rgba(255,255,255,.15);color:white;border-color:rgba(255,255,255,.25);}
+    .pc-tiers{max-height:0;overflow:hidden;transition:max-height .4s ease;}
+    .pcard.open .pc-tiers{max-height:210px;}
+    .tiers-in{border-top:1px solid rgba(255,255,255,.08);margin-top:14px;padding-top:12px;}
+    .tr{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px;color:rgba(255,255,255,.45);}
+    .tr:last-child{border-bottom:none;}
+    .tr-name{font-weight:700;color:rgba(255,255,255,.65);}
+    .tr-r{display:flex;align-items:center;gap:8px;}
+    .tr-p{font-family:'Montserrat',sans-serif;font-weight:800;color:var(--sky);}
+    .tr-tag{font-size:10px;background:rgba(126,200,227,.12);color:rgba(126,200,227,.7);padding:2px 7px;border-radius:8px;font-weight:700;}
+
+    /* ─── MINERAL DATA ─── */
+    .mineral{background:var(--blue);padding:72px 72px;}
+    .mineral-inner{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center;}
+    .mk{font-size:11px;font-weight:700;letter-spacing:5px;text-transform:uppercase;color:var(--light);margin-bottom:14px;opacity:0;transform:translateY(20px);}
+    .mh{font-family:'Montserrat',sans-serif;font-size:clamp(28px,3.5vw,46px);font-weight:900;font-style:italic;line-height:.95;letter-spacing:-1px;color:white;margin-bottom:18px;opacity:0;transform:translateY(20px);}
+    .mb{font-size:14px;color:rgba(255,255,255,.6);line-height:1.75;opacity:0;transform:translateY(20px);}
+    .mtable{background:rgba(255,255,255,.07);border-radius:18px;overflow:hidden;border:1px solid rgba(255,255,255,.1);opacity:0;transform:translateX(30px);}
+    .mt-hdr{background:rgba(255,255,255,.1);padding:12px 22px;display:flex;justify-content:space-between;}
+    .mt-h{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.45);}
+    .mt-row{display:flex;justify-content:space-between;align-items:center;padding:11px 22px;border-bottom:1px solid rgba(255,255,255,.05);transition:background .2s;}
+    .mt-row:last-child{border-bottom:none;}
+    .mt-row:hover{background:rgba(255,255,255,.05);}
+    .mt-m{font-size:12px;color:rgba(255,255,255,.65);}
+    .mt-v{font-family:'Montserrat',sans-serif;font-size:13px;font-weight:800;color:white;}
+    .mt-bar{flex:1;margin:0 14px;height:3px;background:rgba(255,255,255,.1);border-radius:2px;}
+    .mt-bf{height:3px;background:var(--sky);border-radius:2px;}
+    .ph-row{background:rgba(126,200,227,.08);}
+    .ph-row .mt-v{color:var(--sky);}
+    .mt-note{font-size:11px;color:rgba(255,255,255,.3);text-align:center;padding:10px 22px;}
+
+    /* ─── HOW ─── */
+    .how{background:var(--light3);padding:80px 72px;}
+    .how-inner{max-width:1280px;margin:0 auto;}
+    .how-hdr{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:end;margin-bottom:56px;}
+    .hwk{font-size:11px;font-weight:700;letter-spacing:5px;text-transform:uppercase;color:var(--blue);margin-bottom:14px;opacity:0;transform:translateY(20px);}
+    .hwh{font-family:'Montserrat',sans-serif;font-size:clamp(32px,4vw,54px);font-weight:900;font-style:italic;line-height:.95;letter-spacing:-2px;color:var(--ink);opacity:0;transform:translateY(20px);}
+    .hwh span{color:var(--blue);}
+    .hwb{font-size:14px;color:var(--gray);line-height:1.75;opacity:0;}
+    .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;position:relative;}
+    .steps::after{content:'';position:absolute;top:40px;left:calc(16.7%+22px);right:calc(16.7%+22px);height:1px;background:linear-gradient(90deg,var(--blue),var(--sky),var(--blue));opacity:.15;}
+    .step{padding:0 16px;text-align:center;opacity:0;transform:translateY(28px);}
+    .step-ring{width:80px;height:80px;border-radius:50%;border:2px solid var(--light);display:flex;align-items:center;justify-content:center;margin:0 auto 24px;background:white;position:relative;z-index:1;transition:all .4s;box-shadow:0 4px 16px rgba(0,119,182,.08);}
+    .step:hover .step-ring{background:var(--blue);border-color:var(--blue);box-shadow:0 8px 28px rgba(0,119,182,.3);}
+    .step:hover .step-ring svg{stroke:white;}
+    .step-ring svg{width:28px;height:28px;}
+    .step-title{font-family:'Montserrat',sans-serif;font-size:19px;font-weight:800;color:var(--ink);margin-bottom:10px;}
+    .step-body{font-size:13px;color:var(--gray);line-height:1.75;}
+    .step-det{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:14px;font-size:11px;font-weight:700;color:var(--blue);}
+    .sdl{width:14px;height:1px;background:var(--blue);opacity:.3;}
+
+    /* ─── QUALITY ─── */
+    .quality{background:var(--light2);padding:80px 72px;}
+    .quality-inner{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:start;}
+    .qk{font-size:11px;font-weight:700;letter-spacing:5px;text-transform:uppercase;color:var(--blue);margin-bottom:14px;opacity:0;transform:translateY(20px);}
+    .qh{font-family:'Montserrat',sans-serif;font-size:clamp(30px,3.5vw,50px);font-weight:900;font-style:italic;line-height:.95;letter-spacing:-2px;color:var(--ink);margin-bottom:20px;opacity:0;transform:translateY(20px);}
+    .qh span{color:var(--blue);}
+    .qb{font-size:14px;color:var(--gray);line-height:1.8;margin-bottom:28px;opacity:0;transform:translateY(20px);}
+    .qcerts{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:0;opacity:0;transform:translateY(20px);}
+    .qcert{display:flex;align-items:center;gap:9px;background:white;border:1.5px solid var(--light);border-radius:12px;padding:9px 14px;}
+    .qci{width:30px;height:30px;border-radius:9px;background:var(--blue);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .qci svg{width:14px;height:14px;}
+    .qct{font-family:'Montserrat',sans-serif;font-size:13px;font-weight:800;color:var(--ink);}
+    .qcs{font-size:10px;color:var(--gray);}
+    .pipeline{display:flex;flex-direction:column;gap:0;opacity:0;transform:translateX(28px);}
+    .ps{display:flex;align-items:flex-start;gap:16px;padding:18px 0;border-bottom:1px solid rgba(0,119,182,.09);transition:padding-left .3s;}
+    .ps:last-child{border-bottom:none;}
+    .ps:hover{padding-left:7px;}
+    .ps-icon{width:44px;height:44px;border-radius:12px;background:white;border:1.5px solid var(--light);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 10px rgba(0,119,182,.07);}
+    .ps-icon svg{width:20px;height:20px;}
+    .ps-c{flex:1;}
+    .ps-t{font-family:'Montserrat',sans-serif;font-size:14px;font-weight:800;color:var(--ink);margin-bottom:3px;}
+    .ps-d{font-size:12px;color:var(--gray);line-height:1.5;}
+    .ps-tag{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:3px 9px;border-radius:18px;white-space:nowrap;margin-top:6px;flex-shrink:0;}
+    .ps-tag.cert{background:rgba(0,119,182,.08);color:var(--blue);}
+    .ps-tag.pass{background:rgba(0,160,80,.1);color:#007a38;}
+
+    /* ─── HYDRATION CLUB ─── */
+    .club{background:linear-gradient(135deg,#004080,var(--blue) 55%,var(--blue-bright) 100%);padding:80px 72px;position:relative;overflow:hidden;}
+    .club::before{content:'';position:absolute;top:-40%;right:-10%;width:650px;height:650px;border-radius:50%;background:radial-gradient(ellipse,rgba(202,240,248,.1),transparent 70%);pointer-events:none;}
+    .club-inner{max-width:1280px;margin:0 auto;position:relative;z-index:1;}
+    .club-grid{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center;margin-bottom:56px;}
+    .clk{display:inline-flex;align-items:center;gap:10px;font-size:11px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:var(--light);background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:30px;padding:6px 16px;margin-bottom:20px;opacity:0;transform:translateY(20px);}
+    .clh{font-family:'Montserrat',sans-serif;font-size:clamp(36px,4.5vw,60px);font-weight:900;font-style:italic;line-height:.92;letter-spacing:-2px;color:white;margin-bottom:20px;opacity:0;transform:translateY(20px);}
+    .clh span{color:var(--light);}
+    .clb{font-size:15px;color:rgba(255,255,255,.7);line-height:1.8;margin-bottom:32px;opacity:0;transform:translateY(20px);}
+    .club-form{display:flex;gap:10px;margin-bottom:20px;opacity:0;transform:translateY(20px);}
+    .club-input{flex:1;padding:14px 22px;border-radius:50px;border:2px solid rgba(255,255,255,.22);background:rgba(255,255,255,.1);color:white;font-family:'Open Sans',sans-serif;font-size:14px;outline:none;backdrop-filter:blur(8px);transition:border-color .3s;}
+    .club-input::placeholder{color:rgba(255,255,255,.4);}
+    .club-input:focus{border-color:rgba(255,255,255,.5);}
+    .btn-join{padding:14px 30px;background:white;color:var(--blue);border:none;border-radius:50px;font-family:'Montserrat',sans-serif;font-weight:800;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;white-space:nowrap;transition:all .3s;box-shadow:0 8px 22px rgba(0,0,0,.18);}
+    .btn-join:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(0,0,0,.26);}
+    .club-members{display:flex;align-items:center;gap:12px;opacity:0;transform:translateY(20px);}
+    .club-avs{display:flex;}
+    .cav{width:32px;height:32px;border-radius:50%;border:2px solid rgba(255,255,255,.35);display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-size:11px;font-weight:800;color:white;margin-left:-8px;}
+    .cav:first-child{margin-left:0;}
+    .av1{background:rgba(0,70,140,.9);} .av2{background:var(--sky);color:var(--ink)!important;} .av3{background:rgba(0,40,90,.9);} .av4{background:rgba(202,240,248,.18);}
+    .club-mt{font-size:12px;color:rgba(255,255,255,.6);}
+    .club-mt strong{color:white;}
+
+    .club-stats-card{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.16);border-radius:22px;padding:32px;opacity:0;transform:translateX(28px);}
+    .csc-lbl{font-size:10px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:22px;}
+    .csc-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;}
+    .csc-num{font-family:'Montserrat',sans-serif;font-size:40px;font-weight:900;color:white;line-height:1;}
+    .csc-num.accent{color:var(--light);}
+    .csc-lbl2{font-size:12px;color:rgba(255,255,255,.45);margin-top:3px;}
+    .csc-next{border-top:1px solid rgba(255,255,255,.1);padding-top:18px;font-size:13px;color:rgba(255,255,255,.5);line-height:1.6;}
+    .csc-next strong{color:white;}
+
+    .club-perks{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+    .perk{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.11);border-radius:20px;padding:28px 24px;transition:all .4s;opacity:0;transform:translateY(22px);}
+    .perk:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.22);transform:translateY(-5px);}
+    .perk-icon{width:50px;height:50px;border-radius:14px;background:rgba(255,255,255,.11);display:flex;align-items:center;justify-content:center;margin-bottom:18px;}
+    .perk-icon svg{width:24px;height:24px;}
+    .perk-title{font-family:'Montserrat',sans-serif;font-size:17px;font-weight:800;color:white;margin-bottom:8px;}
+    .perk-desc{font-size:13px;color:rgba(255,255,255,.58);line-height:1.65;}
+    .perk-tag{display:inline-block;margin-top:12px;font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;background:rgba(255,255,255,.1);color:var(--light);padding:3px 11px;border-radius:18px;}
+
+    /* ─── SOCIAL ─── */
+    .social{background:var(--light3);padding:80px 72px;}
+    .social-inner{max-width:1280px;margin:0 auto;}
+    .soc-hdr{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:40px;}
+    .sock{font-size:11px;font-weight:700;letter-spacing:5px;text-transform:uppercase;color:var(--sky);margin-bottom:12px;opacity:0;transform:translateY(20px);}
+    .soch{font-family:'Montserrat',sans-serif;font-size:clamp(30px,4vw,50px);font-weight:900;font-style:italic;line-height:.95;letter-spacing:-2px;color:var(--ink);opacity:0;transform:translateY(20px);}
+    .soch span{color:var(--blue);}
+    .soc-follow{display:flex;gap:10px;opacity:0;}
+    .fbtn{display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:40px;font-family:'Montserrat',sans-serif;font-size:12px;font-weight:800;letter-spacing:1px;text-decoration:none;transition:all .3s;}
+    .fbtn.ig{background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045);color:white;}
+    .fbtn.tt{background:#010101;color:white;}
+    .fbtn:hover{transform:translateY(-2px) scale(1.04);}
+    .fbtn svg{width:14px;height:14px;}
+    .sgrid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;grid-template-rows:200px 200px;gap:10px;}
+    .spost{border-radius:20px;overflow:hidden;position:relative;cursor:pointer;opacity:0;transform:scale(.94);transition:transform .4s;}
+    .spost:hover{transform:scale(1.025);z-index:2;}
+    .spost:nth-child(1){grid-column:1;grid-row:1/3;}
+    .spost:nth-child(2){grid-column:2;grid-row:1;}
+    .spost:nth-child(3){grid-column:3;grid-row:1;}
+    .spost:nth-child(4){grid-column:4;grid-row:1;}
+    .spost:nth-child(5){grid-column:2/4;grid-row:2;}
+    .spost:nth-child(6){grid-column:4;grid-row:2;}
+    .sg1{background:linear-gradient(160deg,#003F6B,var(--blue),var(--sky));}
+    .sg2{background:linear-gradient(135deg,var(--light),var(--sky));}
+    .sg3{background:linear-gradient(160deg,#004a8e,var(--blue));}
+    .sg4{background:linear-gradient(135deg,var(--sky),var(--light));}
+    .sg5{background:linear-gradient(160deg,#003a7a,#004a8e);}
+    .sg6{background:linear-gradient(135deg,var(--blue),var(--sky));}
+    .spost-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.65) 0%,transparent 55%);display:flex;flex-direction:column;justify-content:flex-end;padding:20px;}
+    .spost-big{font-family:'Montserrat',sans-serif;font-size:24px;font-weight:900;font-style:italic;color:white;line-height:1;margin-bottom:5px;}
+    .spost-cap{font-size:12px;color:rgba(255,255,255,.7);line-height:1.4;}
+    .spost-meta{position:absolute;top:14px;right:14px;display:flex;flex-direction:column;align-items:flex-end;gap:5px;}
+    .spost-plat{background:rgba(0,0,0,.4);backdrop-filter:blur(8px);border-radius:7px;padding:3px 9px;font-size:9px;font-weight:800;color:white;letter-spacing:1px;}
+    .spost-stat{background:rgba(0,0,0,.4);backdrop-filter:blur(8px);border-radius:18px;padding:3px 9px;font-size:10px;font-weight:700;color:white;}
+    .soc-live{text-align:center;margin-top:24px;font-size:12px;color:#9bb;}
+    .soc-live a{color:var(--blue);font-weight:700;text-decoration:none;}
+
+    /* ─── ORDER ─── */
+    .order-section{background:var(--light2);padding:80px 72px;overflow:hidden;position:relative;}
+    .order-section::before{content:'';position:absolute;top:-50%;right:-15%;width:480px;height:480px;border-radius:50%;background:radial-gradient(ellipse,rgba(0,119,182,.1),transparent 70%);pointer-events:none;}
+    .order-inner{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;position:relative;z-index:1;}
+    .order-hl{font-family:'Montserrat',sans-serif;font-size:clamp(44px,7vw,90px);font-weight:900;font-style:italic;line-height:.88;letter-spacing:-4px;color:var(--ink);opacity:0;transform:translateX(-28px);}
+    .order-hl span{color:var(--blue);}
+    .order-right{opacity:0;transform:translateX(28px);}
+    .order-sub{font-size:15px;color:var(--gray);line-height:1.8;margin-bottom:32px;}
+    .order-btns{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:32px;}
+    .btn-blue{display:inline-flex;align-items:center;gap:9px;padding:15px 32px;background:var(--blue);color:white;border:none;border-radius:50px;font-family:'Montserrat',sans-serif;font-weight:800;font-size:13px;letter-spacing:1px;text-transform:uppercase;text-decoration:none;transition:all .3s;box-shadow:0 8px 26px rgba(0,119,182,.22);}
+    .btn-blue:hover{background:#005a8e;transform:translateY(-3px);}
+    .btn-wa{display:inline-flex;align-items:center;gap:9px;padding:15px 32px;background:#25D366;color:white;border:none;border-radius:50px;font-family:'Montserrat',sans-serif;font-weight:800;font-size:13px;letter-spacing:1px;text-transform:uppercase;text-decoration:none;transition:all .3s;box-shadow:0 8px 26px rgba(37,211,102,.18);}
+    .btn-wa:hover{transform:translateY(-3px);}
+    .order-info{background:white;border-radius:18px;padding:24px;border:1.5px solid var(--light);}
+    .oi-t{font-family:'Montserrat',sans-serif;font-size:14px;font-weight:800;color:var(--ink);margin-bottom:14px;}
+    .oi-row{display:flex;align-items:center;gap:11px;font-size:13px;color:var(--gray);padding:7px 0;border-bottom:1px solid var(--light2);}
+    .oi-row:last-child{border-bottom:none;}
+    .oi-icon{width:30px;height:30px;border-radius:9px;background:var(--light2);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .oi-icon svg{width:14px;height:14px;}
+
+    /* ─── FOOTER ─── */
+    footer{background:var(--ink);padding:52px 72px;}
+    .foot-inner{max-width:1280px;margin:0 auto;}
+    .foot-top{display:flex;justify-content:space-between;gap:52px;margin-bottom:40px;flex-wrap:wrap;}
+    .foot-logo{font-family:'Montserrat',sans-serif;font-size:22px;font-weight:900;font-style:italic;background:linear-gradient(135deg,var(--blue),var(--sky));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:7px;}
+    .foot-tag{font-family:'Montserrat',sans-serif;font-size:12px;font-style:italic;font-weight:700;color:var(--sky);letter-spacing:3px;margin-bottom:12px;}
+    .foot-desc{font-size:12px;color:rgba(255,255,255,.28);line-height:1.7;max-width:240px;}
+    .foot-col-t{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.22);margin-bottom:16px;}
+    .foot-link{display:block;font-size:13px;color:rgba(255,255,255,.45);text-decoration:none;margin-bottom:10px;transition:color .2s;}
+    .foot-link:hover{color:var(--sky);}
+    .foot-bot{display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(255,255,255,.07);padding-top:22px;flex-wrap:wrap;gap:10px;}
+    .foot-copy{font-size:11px;color:rgba(255,255,255,.18);}
+    .foot-legal{display:flex;gap:22px;}
+    .foot-legal a{font-size:11px;color:rgba(255,255,255,.18);text-decoration:none;transition:color .2s;}
+    .foot-legal a:hover{color:rgba(255,255,255,.45);}
+
+    @media(max-width:1024px){
+      nav,nav.scrolled{padding:14px 24px;}
+      .nav-links{display:none;}
+      .hero-inner{grid-template-columns:1fr;padding:0 24px;}
+      .hero-right{display:none;}
+      .statement-wrap,.mineral-inner,.quality-inner,.order-inner{grid-template-columns:1fr;gap:40px;}
+      .pgrid{grid-template-columns:1fr 1fr;}
+      .steps{grid-template-columns:1fr;}
+      .steps::after{display:none;}
+      .club-grid{grid-template-columns:1fr;}
+      .club-perks{grid-template-columns:1fr;}
+      .sgrid{grid-template-columns:1fr 1fr;grid-template-rows:auto;}
+      .spost:nth-child(n){grid-column:auto!important;grid-row:auto!important;}
+      .foot-top{flex-direction:column;gap:28px;}
+      section,.how,.quality,.social,.order-section,.mineral,.club{padding:60px 24px!important;}
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="nav">
+  <a class="nav-logo" href="#">Maji Safi</a>
+  <ul class="nav-links">
+    <li><a href="#statement">The Water</a></li>
+    <li><a href="#products">Products</a></li>
+    <li><a href="#quality">Quality</a></li>
+    <li><a href="#club">Hydration Club</a></li>
+    <li><a href="#order" class="nav-cta">Order Now</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <canvas id="hero-canvas"></canvas>
+  <div class="hero-inner">
+    <div>
+      <div class="hero-eyebrow" id="hE"><div class="hero-dot"></div>Kampala's Purified Water — Now Delivering</div>
+      <h1 class="hero-name" id="hN">Maji<span class="l2">Safi.</span></h1>
+      <div class="hero-tagline" id="hT">Hydrate. Elevate.</div>
+      <p class="hero-sub" id="hS">Pure purified water. WHO certified · UNBS EAS 13 approved · Made at Lukuli Road, Buziga.</p>
+      <div class="hero-btns" id="hB">
+        <a href="#order" class="btn-white">Order Now</a>
+        <a href="#products" class="btn-ghost">See Products</a>
+      </div>
+    </div>
+    <div class="hero-right" id="hR">
+      <div class="bottles-row">
+
+        <!-- 5L clear PET bottle -->
+        <div class="bot-wrap">
+          <div class="bot-lbl">5 Litres</div>
+          <div class="bot-float-2">
+            <a href="https://wa.me/256XXXXXXXXX?text=Hi%20Maji%20Safi!%20I%27d%20like%20to%20order%20a%205L%20water." target="_blank">
+            <svg width="96" height="210" viewBox="0 0 86 240" fill="none"
+              style="cursor:pointer;filter:drop-shadow(0 18px 32px rgba(0,60,120,.35));transition:filter .3s,transform .3s"
+              onmouseover="this.style.transform='scale(1.06)';this.style.filter='drop-shadow(0 24px 48px rgba(245,166,35,.45))'"
+              onmouseout="this.style.transform='';this.style.filter='drop-shadow(0 18px 32px rgba(0,60,120,.35))'">
+              <defs>
+                <linearGradient id="h5body" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stop-color="#b8dcf0"/><stop offset="35%" stop-color="#ddf0fc"/>
+                  <stop offset="70%" stop-color="#eef9ff"/><stop offset="100%" stop-color="#94c4e4"/>
+                </linearGradient>
+                <linearGradient id="h5water" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#0088cc" stop-opacity=".8"/><stop offset="100%" stop-color="#004488" stop-opacity=".95"/>
+                </linearGradient>
+                <linearGradient id="h5cap" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#55ccee"/><stop offset="100%" stop-color="#0077b6"/>
+                </linearGradient>
+                <clipPath id="h5c"><rect x="6" y="58" width="74" height="175" rx="10"/></clipPath>
+              </defs>
+              <rect x="24" y="3" width="38" height="18" rx="7" fill="url(#h5cap)"/>
+              <rect x="27" y="6" width="32" height="4" rx="2" fill="rgba(255,255,255,.32)"/>
+              <rect x="27" y="12" width="32" height="4" rx="2" fill="rgba(255,255,255,.2)"/>
+              <rect x="22" y="19" width="42" height="26" rx="8" fill="#c8e8f6" stroke="rgba(0,100,180,.18)" stroke-width="1"/>
+              <path d="M8 50 Q6 56 6 62 L80 62 Q80 56 78 50 Q68 38 43 36 Q18 38 8 50Z" fill="url(#h5body)" stroke="rgba(0,100,180,.15)" stroke-width="1"/>
+              <rect x="6" y="58" width="74" height="175" rx="11" fill="url(#h5body)" stroke="rgba(0,100,180,.15)" stroke-width="1.5"/>
+              <path d="M7 100 Q43 97 79 100" stroke="rgba(0,100,180,.15)" stroke-width="1.2" fill="none"/>
+              <path d="M7 135 Q43 131 79 135" stroke="rgba(0,100,180,.15)" stroke-width="1.2" fill="none"/>
+              <path d="M7 170 Q43 166 79 170" stroke="rgba(0,100,180,.15)" stroke-width="1.2" fill="none"/>
+              <path d="M7 205 Q43 201 79 205" stroke="rgba(0,100,180,.15)" stroke-width="1.2" fill="none"/>
+              <rect x="6" y="155" width="74" height="78" fill="url(#h5water)" clip-path="url(#h5c)" opacity=".85"/>
+              <path d="M7 155 Q22 148 43 153 Q64 158 79 151 L80 163 Q64 170 43 165 Q22 160 6 167Z" fill="rgba(255,255,255,.2)" clip-path="url(#h5c)"/>
+              <!-- Label -->
+              <rect x="12" y="65" width="62" height="80" rx="6" fill="rgba(255,255,255,.9)"/>
+              <!-- Sky blue wave bg on label -->
+              <path d="M12 105 Q26 98 43 103 Q60 108 74 101 L74 145 Q12 145 12 145Z" fill="rgba(126,200,227,.25)" clip-path="url(h5lclip)"/>
+              <text x="43" y="83" text-anchor="middle" font-family="Montserrat,sans-serif" font-size="7.5" font-weight="900" fill="#0077B6" letter-spacing="1.5">MAJI SAFI</text>
+              <line x1="18" y1="87" x2="68" y2="87" stroke="#0077B6" stroke-width=".5" opacity=".35"/>
+              <text x="43" y="108" text-anchor="middle" font-family="Montserrat,sans-serif" font-size="26" font-weight="900" fill="#02111A">5L</text>
+              <text x="43" y="121" text-anchor="middle" font-family="Open Sans,sans-serif" font-size="6.5" fill="#6B7A8D" letter-spacing="1">PURIFIED WATER</text>
+              <rect x="17" y="127" width="52" height="7" rx="3.5" fill="#f5a623" opacity=".85"/>
+              <text x="43" y="133" text-anchor="middle" font-family="Open Sans,sans-serif" font-size="4.5" fill="white" font-weight="700">UNBS CERTIFIED · EAS 13</text>
+              <!-- Handle -->
+              <path d="M80 78 Q92 78 92 100 Q92 122 80 122" stroke="#a8d4ec" stroke-width="6" fill="none" stroke-linecap="round" opacity=".65"/>
+              <!-- Shine -->
+              <ellipse cx="18" cy="115" rx="4" ry="50" fill="rgba(255,255,255,.22)" transform="rotate(-7 18 115)"/>
+              <ellipse cx="43" cy="237" rx="28" ry="5" fill="rgba(0,0,0,.12)"/>
+            </svg>
+            </a>
+          </div>
+          <div class="bot-shadow" style="width:68px;height:12px;"></div>
+          <div class="tap-hint">Tap to order</div>
+        </div>
+
+        <!-- 20L clear PET bottle — main hero -->
+        <div class="bot-wrap" style="position:relative;">
+          <div class="bot-lbl">20 Litres</div>
+          <div class="bot-float">
+            <a href="https://wa.me/256XXXXXXXXX?text=Hi%20Maji%20Safi!%20I%27d%20like%20to%20order%20a%2020L%20water." target="_blank">
+            <svg width="185" height="310" viewBox="0 0 130 260" fill="none"
+              style="cursor:pointer;filter:drop-shadow(0 24px 52px rgba(0,60,120,.45));transition:filter .3s,transform .3s"
+              onmouseover="this.style.transform='scale(1.04)';this.style.filter='drop-shadow(0 30px 65px rgba(0,100,200,.55))'"
+              onmouseout="this.style.transform='';this.style.filter='drop-shadow(0 24px 52px rgba(0,60,120,.45))'">
+              <defs>
+                <linearGradient id="hj20b" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stop-color="#b0d8f0"/><stop offset="28%" stop-color="#d8f0fc"/>
+                  <stop offset="60%" stop-color="#eaf8ff"/><stop offset="100%" stop-color="#88c4e0"/>
+                </linearGradient>
+                <linearGradient id="hj20w" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#0077B6" stop-opacity=".85"/><stop offset="100%" stop-color="#003F6B" stop-opacity=".96"/>
+                </linearGradient>
+                <linearGradient id="hj20cap" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#33bbee"/><stop offset="100%" stop-color="#005A8E"/>
+                </linearGradient>
+                <clipPath id="hj20c"><path d="M18 88 Q14 130 14 165 Q14 245 65 252 Q116 245 116 165 Q116 130 112 88Z"/></clipPath>
+              </defs>
+              <rect x="40" y="2" width="50" height="26" rx="10" fill="url(#hj20cap)"/>
+              <rect x="44" y="5" width="42" height="6" rx="3" fill="rgba(255,255,255,.28)"/>
+              <rect x="44" y="13" width="42" height="6" rx="3" fill="rgba(255,255,255,.2)"/>
+              <rect x="44" y="21" width="42" height="6" rx="3" fill="rgba(255,255,255,.12)"/>
+              <rect x="42" y="26" width="46" height="30" rx="8" fill="url(#hj20b)" stroke="rgba(0,100,180,.18)" stroke-width="1.2"/>
+              <path d="M14 70 Q12 78 12 88 L118 88 Q118 78 116 70 Q102 54 65 52 Q28 54 14 70Z" fill="url(#hj20b)" stroke="rgba(0,100,180,.18)" stroke-width="1"/>
+              <path d="M12 88 Q10 130 10 165 Q10 248 65 256 Q120 248 120 165 Q120 130 118 88Z" fill="url(#hj20b)" stroke="rgba(0,100,180,.18)" stroke-width="1.5"/>
+              <!-- Ribs -->
+              <path d="M12 115 Q65 111 118 115" stroke="rgba(0,60,120,.18)" stroke-width="1.2" fill="none"/>
+              <path d="M11 143 Q65 138 119 143" stroke="rgba(0,60,120,.18)" stroke-width="1.2" fill="none"/>
+              <path d="M11 172 Q65 167 119 172" stroke="rgba(0,60,120,.18)" stroke-width="1.2" fill="none"/>
+              <!-- Water fill -->
+              <path d="M13 136 Q10 158 10 170 Q10 248 65 256 Q120 248 120 170 Q120 158 117 136Z" fill="url(#hj20w)" clip-path="url(#hj20c)" opacity=".88"/>
+              <path d="M14 136 Q36 128 65 134 Q94 140 116 132 L117 148 Q94 156 65 150 Q36 144 12 152Z" fill="rgba(255,255,255,.18)" clip-path="url(#hj20c)"/>
+              <!-- Label white bg -->
+              <rect x="20" y="90" width="90" height="98" rx="8" fill="rgba(255,255,255,.92)"/>
+              <!-- Sky blue wave on label -->
+              <path d="M20 148 Q38 140 65 146 Q92 152 110 144 L110 188 Q20 188 20 188Z" fill="rgba(126,200,227,.2)" clip-path="url(labclip)"/>
+              <text x="65" y="110" text-anchor="middle" font-family="Montserrat,sans-serif" font-size="11" font-weight="900" fill="#0077B6" letter-spacing="3">MAJI SAFI</text>
+              <line x1="28" y1="115" x2="102" y2="115" stroke="#0077B6" stroke-width=".7" opacity=".35"/>
+              <text x="65" y="139" text-anchor="middle" font-family="Montserrat,sans-serif" font-size="32" font-weight="900" fill="#02111A">20L</text>
+              <text x="65" y="153" text-anchor="middle" font-family="Open Sans,sans-serif" font-size="8" fill="#6B7A8D" letter-spacing="1.5">PURIFIED WATER</text>
+              <line x1="30" y1="158" x2="100" y2="158" stroke="#0077B6" stroke-width=".6" opacity=".25"/>
+              <text x="65" y="168" text-anchor="middle" font-family="Open Sans,sans-serif" font-size="7" fill="#0077B6" font-weight="700" letter-spacing=".5">WHO · UNBS Certified · EAS 13</text>
+              <rect x="30" y="173" width="70" height="7" rx="3.5" fill="#f5a623" opacity=".8"/>
+              <text x="65" y="178.5" text-anchor="middle" font-family="Open Sans,sans-serif" font-size="4.5" fill="white" font-weight="700">UNBS CERTIFIED PRODUCT</text>
+              <!-- Handle -->
+              <path d="M14 98 Q2 98 2 120 Q2 142 14 142" stroke="#90c8e0" stroke-width="8" fill="none" stroke-linecap="round" opacity=".75"/>
+              <path d="M14 98 Q4 98 4 120 Q4 142 14 142" stroke="rgba(255,255,255,.38)" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+              <!-- Shine -->
+              <ellipse cx="28" cy="132" rx="6" ry="60" fill="rgba(255,255,255,.22)" transform="rotate(-9 28 132)"/>
+              <ellipse cx="22" cy="92" rx="3" ry="18" fill="rgba(255,255,255,.28)" transform="rotate(-7 22 92)"/>
+              <ellipse cx="65" cy="260" rx="40" ry="8" fill="rgba(0,0,0,.12)"/>
+            </svg>
+            </a>
+          </div>
+          <div class="bot-shadow" style="width:120px;height:16px;"></div>
+          <div class="tap-hint">Tap to order</div>
+          <!-- Badge -->
+          <div class="hero-badge">
+            <div class="hb-title">Reusable Jar</div>
+            <div class="hb-sub">Own it. Refill forever.</div>
+          </div>
+        </div>
+
+      </div>
+      <!-- Stats strip -->
+      <div class="hero-stats">
+        <div class="hs"><div class="hs-num">6K</div><div class="hs-lbl">L/hr Capacity</div></div>
+        <div class="hs"><div class="hs-num">4</div><div class="hs-lbl">Products</div></div>
+        <div class="hs"><div class="hs-num">24/7</div><div class="hs-lbl">Delivery</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-hint" id="hSc"><div class="svline"></div><span>Scroll</span></div>
+</section>
+
+<!-- MARQUEE -->
+<div class="mq-wrap"><div class="mq-track" id="mq"></div></div>
+
+<!-- CERT BAR -->
+<div class="cert-bar">
+  <div class="cert-bar-inner">
+    <div class="ci" id="ci1">
+      <div class="ci-icon"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+      <div><div class="ci-title">WHO Certified</div><div class="ci-sub">World Health Organization standard</div></div>
+    </div>
+    <div class="ci-div"></div>
+    <div class="ci" id="ci2">
+      <div class="ci-icon">
+        <!-- UNBS Shield -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8">
+          <path d="M12 2L20 6V12C20 17 16 21 12 23C8 21 4 17 4 12V6L12 2Z" stroke-linejoin="round"/>
+          <text x="12" y="15" text-anchor="middle" font-family="Montserrat,sans-serif" font-size="4.5" font-weight="900" fill="white" stroke="none">UNBS</text>
+        </svg>
+      </div>
+      <div><div class="ci-title">UNBS Approved · EAS 13</div><div class="ci-sub">Uganda National Bureau of Standards</div></div>
+    </div>
+    <div class="ci-div"></div>
+    <div class="ci" id="ci3">
+      <div class="ci-icon"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+      <div><div class="ci-title">6,000 L/hr</div><div class="ci-sub">Ultrafiltration production capacity</div></div>
+    </div>
+    <div class="ci-div"></div>
+    <div class="ci" id="ci4">
+      <div class="ci-icon"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M12 2C8 7 5 10.5 5 14a7 7 0 0014 0c0-3.5-3-7-7-12z"/></svg></div>
+      <div><div class="ci-title">pH 6.5 – 8.5</div><div class="ci-sub">Optimal safe drinking range</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- STATEMENT -->
+<div id="statement" style="background:var(--light3);">
+  <div class="statement-wrap">
+    <div>
+      <p class="sk" id="sk">Clean Water · Kampala</p>
+      <h2 class="sh" id="sh">We didn't just<br/>purify water.<br/>We <span>changed</span> the game.</h2>
+      <p class="sb" id="sb">From our plant on Lukuli Road, Buziga, every litre passes through a 6,000 L/hr ultrafiltration system. <strong>No guesswork. No compromise.</strong><br/><br/>Clean water isn't a privilege. In Kampala, it's now a phone call away.</p>
+    </div>
+    <div class="dg" id="dg">
+      <div class="dc a" id="dc1"><div class="dc-ghost">6K</div><div class="dc-val">6,000<span class="dc-unit"> L/hr</span></div><div class="dc-lbl">Production capacity — ultrafiltration, Buziga</div><div class="bar-w"><div class="bar-l">vs standard 500L/hr plant</div><div class="bar-t"><div class="bar-f" id="barf" style="width:92%"></div></div></div></div>
+      <div class="dc b" id="dc2"><div class="dc-ghost">100</div><div class="dc-val">100<span class="dc-unit">%</span></div><div class="dc-lbl">WHO & UNBS compliance — every batch tested</div></div>
+      <div class="dc c" id="dc3"><div class="dc-ghost">4</div><div class="dc-val">4<span class="dc-unit"> SKUs</span></div><div class="dc-lbl">5L · 20L Refill · 20L Sealed · Reusable Jar</div></div>
+      <div class="dc d" id="dc4"><div class="dc-ghost">24</div><div class="dc-val">24/7</div><div class="dc-lbl">Tuk-tuk & bike delivery across Kampala</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- PRODUCTS -->
+<div id="products">
+  <div class="prod-inner">
+    <div class="prod-hdr">
+      <div><p class="pk" id="pk">Our Products</p><h2 class="ph" id="pph">Water that fits<br/><span>your world.</span></h2></div>
+      <p class="phn" id="phn">Tap a bottle to order directly on WhatsApp.</p>
+    </div>
+    <div class="pgrid">
+
+      <!-- 20L Refill -->
+      <div class="pcard" id="pc1" onclick="toggleCard(this)">
+        <div class="pc-bot">
+          <div class="pc-badge">Most Popular</div>
+          <div class="pc-bot-anim" style="animation-delay:0s">
+            <a href="https://wa.me/256XXXXXXXXX?text=Hi%20Maji%20Safi!%20I%27d%20like%20to%20order%20a%2020L%20refill." target="_blank" onclick="event.stopPropagation()">
+            <svg width="110" height="200" viewBox="0 0 130 260" fill="none"
+              style="cursor:pointer;transition:transform .35s,filter .35s"
+              onmouseover="this.style.transform='scale(1.07) translateY(-5px)';this.style.filter='drop-shadow(0 18px 38px rgba(0,200,120,.35))'"
+              onmouseout="this.style.transform='';this.style.filter=''">
+              <defs>
+                <linearGradient id="r1b" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#5abadc"/><stop offset="35%" stop-color="#8ed4ee"/><stop offset="65%" stop-color="#aae0f4"/><stop offset="100%" stop-color="#4aa8cc"/></linearGradient>
+                <linearGradient id="r1w" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0055aa" stop-opacity=".75"/><stop offset="100%" stop-color="#003070" stop-opacity=".9"/></linearGradient>
+                <linearGradient id="r1c" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#33aadd"/><stop offset="100%" stop-color="#0055aa"/></linearGradient>
+                <clipPath id="r1clip"><path d="M18 88 Q14 130 14 165 Q14 245 65 252 Q116 245 116 165 Q116 130 112 88Z"/></clipPath>
+              </defs>
+              <rect x="38" y="4" width="54" height="24" rx="10" fill="url(#r1c)"/>
+              <rect x="42" y="7" width="46" height="5" rx="2.5" fill="rgba(255,255,255,.25)"/>
+              <rect x="42" y="14" width="46" height="5" rx="2.5" fill="rgba(255,255,255,.18)"/>
+              <rect x="40" y="26" width="50" height="30" rx="8" fill="#7EC8E3" stroke="rgba(0,80,150,.25)" stroke-width="1.2"/>
+              <path d="M14 72 Q12 80 12 88 L118 88 Q118 80 116 72 Q102 56 65 54 Q28 56 14 72Z" fill="url(#r1b)" stroke="rgba(0,80,150,.2)" stroke-width="1"/>
+              <path d="M12 88 Q10 130 10 165 Q10 248 65 256 Q120 248 120 165 Q120 130 118 88Z" fill="url(#r1b)" stroke="rgba(0,80,150,.2)" stroke-width="1.5"/>
+              <path d="M12 115 Q65 111 118 115" stroke="rgba(0,60,120,.2)" stroke-width="1.5" fill="none"/>
+              <path d="M11 143 Q65 138 119 143" stroke="rgba(0,60,120,.2)" stroke-width="1.5" fill="none"/>
+              <path d="M11 172 Q65 167 119 172" stroke="rgba(0,60,120,.2)" stroke-width="1.5" fill="none"/>
+              <path d="M13 152 Q10 172 10 185 Q10 248 65 256 Q120 248 120 185 Q120 172 117 152Z" fill="url(#r1w)" clip-path="url(#r1clip)" opacity=".8"/>
+              <path d="M14 152 Q36 144 65 150 Q94 156 116 148 L117 165 Q94 173 65 167 Q36 161 12 169Z" fill="rgba(255,255,255,.18)" clip-path="url(#r1clip)"/>
+              <rect x="20" y="90" width="90" height="96" rx="8" fill="rgba(255,255,255,.92)"/>
+              <text x="65" y="110" text-anchor="middle" font-family="Montserrat,sans-serif" font-size="9" font-weight="900" fill="#0077B6" letter-spacing="2">MAJI SAFI</text>
+              <line x1="28" y1="114" x2="102" y2="114" stroke="#0077B6" stroke-width=".6" opacity=".3"/>
+              <text x="65" y="140" text-anchor="middle" font-family="Montserrat,sans-serif" font-size="28" font-weight="900" fill="#02111A">20L</text>
+              <text x="65" y="154" text-anchor="middle" font-family="Open Sans,sans-serif" font-size="7.5" fill="#6B7A8D" letter-spacing="1">REFILL</text>
+              <rect x="30" y="159" width="70" height="7" rx="3.5" fill="#f5a623" opacity=".8"/>
+              <text x="65" y="164.5" text-anchor="middle" font-family="Open Sans,sans-serif" font-size="4.5" fill="white" font-weight="700">UNBS CERTIFIED · EAS 13</text>
+              <text x="65" y="175" text-anchor="middle" font-family="Open Sans,sans-serif" font-size="6.5" fill="#0077B6" font-weight="700">WHO Certified</text>
+              <path d="M14 100 Q2 100 2 122 Q2 144 14 144" stroke="#90c8e0" stroke-width="8" fill="none" stroke-linecap="round" opacity=".75"/>
+              <ellipse cx="26" cy="130" rx="5" ry="55" fill="rgba(255,255,255,.2)" transform="rotate(-8 26 130)"/>
+              <ellipse cx="65" cy="260" rx="40" ry="7" fill="rgba(0,0,0,.1)"/>
+            </svg>
+            </a>
+          </div>
+        </div>
+        <div class="pc-body">
+          <div class="pc-name">20L Refill</div>
+          <div class="pc-desc">Bring your jar, we fill it. Best value for households and regulars.</div>
+          <div class="pc-price-row"><div class="pc-from">From</div><div class="pc-price">3,000</div><div class="pc-cur">UGX</div></div>
+          <div class="pc-del"><div class="pc-del-dot"></div>Pickup or tuk-tuk delivery</div>
+          <div class="pc-btn">See all tiers ↓</div>
+          <div class="pc-tiers"><div class="tiers-in">
+            <div class="tr"><span class="tr-name">T1 — Pickup</span><div class="tr-r"><span class="tr-p">3,000 UGX</span></div></div>
+            <div class="tr"><span class="tr-name">T2</span><div class="tr-r"><span class="tr-p">4,000 UGX</span><span class="tr-tag">Tuk-tuk</span></div></div>
+            <div class="tr"><span class="tr-name">T3</span><div class="tr-r"><span class="tr-p">5,000 UGX</span><span class="tr-tag">Tuk-tuk</span></div></div>
+            <div class="tr"><span class="tr-name">T4</span><div class="tr-r"><span class="tr-p">6,000 UGX</span><span class="tr-tag">Bike+Tuk</span></div></div>
+          </div></div>
+        </div>
+      </div>
+
+      <!-- 20L Sealed -->
+      <div class="pcard" id="pc2" onclick="toggleCard(this)">
+        <div class="pc-bot">
+          <div class="pc-badge">Factory Sealed</div>
+          <div class="pc-bot-anim" style="animation-delay:-1.3s">
+            <a href="https://wa.me/256XXXXXXXXX?text=Hi%20Maji%20Safi!%20I%27d%20like%20to%20order%20a%2020L%20sealed%20jar." target="_blank" onclick="event.stopPropagation()">
+            <svg width="110" height="200" viewBox="0 0 130 260" fill="none"
+              style="cursor:pointer;transition:transform .35s,filter .35s"
+              onmouseover="this.style.transform='scale(1.07) translateY(-5px)';this.style.filter='drop-shadow(0 18px 38px rgba(0,180,255,.35))'"
+              onmouseout="this.style.transform='';this.style.filter=''">
+              <defs>
+                <linearGradient id="s1b" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#5abadc"/><stop offset="35%" stop-color="#8ed4ee"/><stop offset="65%" stop-color="#aae0f4"/><stop offset="100%" stop-color="#4aa8cc"/></linearGradient>
+                <linearGradient id="s1w" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0055aa" stop-opacity=".75"/><stop offset="100%" stop-color="#003070" stop-opacity=".9"/></linearGradient>
+                <linearGradient id="s1c" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#33aadd"/><stop offset="100%" stop-color="#0055aa"/></linearGradient>
+                <clipPath id="s1clip"><path d="M18 88 Q14 130 14 165 Q14 245 65 252 Q116 245 116 165 Q116 130 112 88Z"/></clipPath>
+              </defs>
+              <rect x="38" y="4" width="54" height="24" rx="10" fill="url(#s1c)"/>
+              <rect x="42" y="7" width="46" height="5" rx="2.5" fill="rgba(255,255,255,.25)"/>
+              <rect x="42" y="14" width="46" height="5" rx="2.5" fill="rgba(255,255,255,.18)"/>
+              <!-- Tamper seal -->
+              <rect x="38" y="26" width="54" height="8" rx="4" fill="rgba(0,80,150,.25)"/>
+              <rect x="40" y="32" width="50" height="24" rx="8" fill="#7EC8E3" stroke="rgba(0,80,150,.25)" stroke-width="1.2"/>
+              <path d="M14 72 Q12 80 12 88 L118 88 Q118 80 116 72 Q102 56 65 54 Q28 56 14 72Z" fill="url(#s1b)" stroke="rgba(0,80,150,.2)" stroke-width="1"/>
+              <path d="M12 88 Q10 130 10 165 Q10 248 65 256 Q120 248 120 165 Q120 130 118 88Z" fill="url(#s1b)" stroke="rgba(0,80,150,.2)" stroke-width="1.5"/>
+              <path d="M12 115 Q65 111 118 115" stroke="rgba(0,60,120,.2)" stroke-width="1.5" fill="none"/>
+              <path d="M11 143 Q65 138 119 143" stroke="rgba(0,60,120,.2)" stroke-width="1.5" fill="none"/>
+              <path d="M11 172 Q65 167 119 172" stroke="rgba(0,60,120,.2)" stroke-width="1.5" fill="none"/>
+              <!-- Full water — sealed fresh -->
+              <path d="M13 88 Q10 130 10 165 Q10 248 65 256 Q120 248 120 165 Q120 130 117 88Z" fill="url(#s1w)" clip-path="url(#s1clip)" opacity=".75"/>
+              <path d="M14 88 Q36 81 65 87 Q94 93 116 86 L117 102 Q94 109 65 103 Q36 97 12 104Z" fill="rgba(255,255,255,.2)" clip-path="url(#s1clip)"/>
+              <rect x="20" y="90" width="90" height="96" rx="8" fill="rgba(255,255,255,.92)"/>
+              <text x="65" y="110" text-anchor="middle" font-family="Montserrat,sans-serif" font-size="9" font-weight="900" fill="#0077B6" letter-spacing="2">MAJI SAFI</text>
+              <line x1="28" y1="114" x2="102" y2="114" stroke="#0077B6" stroke-width=".6" opacity=".3"/>
+              <text x="65" y="140" text-anchor="middle" font-family="Montserrat,sans-serif" font-size="28" font-weight="900" fill="#02111A">20L</text>
+              <text x="65" y="154" text-anchor="middle" font-family="Open Sans,sans-serif" font-size="7.5" fill="#6B7A8D" letter-spacing="1">SINGLE USE</text>
+              <rect x="30" y="159" width="70" height="7" rx="3.5" fill="#f5a623" opacity=".8"/>
+              <text x="65" y="164.5" text-anchor="middle" font-family="Open Sans,sans-serif" font-size="4.5" fill="white" font-weight="700">UNBS CERTIFIED · EAS 13</text>
+              <text x="65" y="175" text-anchor="middle" font-family="Open Sans,sans-serif" font-size="6.5" fill="#0077B6" font-weight="700">WHO Certified</text>
+              <path d="M14 100 Q2 100 2 122 Q2 144 14 144" stroke="#90c8e0" stroke-width="8" fill="none" stroke-linecap="round" opacity=".75"/>
+              <ellipse cx="26" cy="130" rx="5" ry="55" fill="rgba(255,255,255,.2)" transform="rotate(-8 26 130)"/>
+              <ellipse cx="65" cy="260" rx="40" ry="7" fill="rgba(0,0,0,.1)"/>
+            </svg>
+            </a>
+          </div>
+        </div>
+        <div class="pc-body">
+          <div class="pc-name">20L Sealed Jar</div>
+          <div class="pc-desc">Tamper-proof seal. Fresh from plant. No jar needed from you.</div>
+          <div class="pc-price-row"><div class="pc-from">From</div><div class="pc-price">7,500</div><div class="pc-cur">UGX</div></div>
+          <div class="pc-del"><div class="pc-del-dot"></div>Pickup or tuk-tuk delivery</div>
+          <div class="pc-btn">See all tiers ↓</div>
+          <div class="pc-tiers"><div class="tiers-in">
+            <div class="tr"><span class="tr-name">T1 — Pickup</span><div class="tr-r"><span class="tr-p">7,500 UGX</span></div></div>
+            <div class="tr"><span class="tr-name">T2</span><div class="tr-r"><span class="tr-p">8,000 UGX</span><span class="tr-tag">Tuk-tuk</span></div></div>
+            <div class="tr"><span class="tr-name">T3</span><div class="tr-r"><span class="tr-p">8,500 UGX</span><span class="tr-tag">Tuk-tuk</span></div></div>
+            <div class="tr"><span class="tr-name">T4</span><div class="tr-r"><span class="tr-p">10,000 UGX</span><span class="tr-tag">Bike+Tuk</span></div></div>
+          </div></div>
+        </div>
+      </div>
+
+      <!-- 5L -->
+      <div class="pcard" id="pc3" onclick="toggleCard(this)">
+        <div class="pc-bot">
+          <div class="pc-badge">Portable</div>
+          <div class="pc-bot-anim" style="animation-delay:-2.6s">
+            <a href="https://wa.me/256XXXXXXXXX?text=Hi%20Maji%20Safi!%20I%27d%20like%20to%20order%20a%205L%20water." target="_blank" onclick="event.stopPropagation()">
+            <svg width="90" height="200" viewBox="0 0 86 240" fill="none"
+              style="cursor:pointer;transition:transform .35s,filter .35s"
+              onmouseover="this.style.transform='scale(1.07) translateY(-5px)';this.style.filter='drop-shadow(0 18px 38px rgba(245,166,35,.45))'"
+              onmouseout="this.style.transform='';this.style.filter=''">
+              <defs>
+                <linearGradient id="b5b" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#b8dcf0"/><stop offset="35%" stop-color="#ddf0fc"/><stop offset="70%" stop-color="#eef9ff"/><stop offset="100%" stop-color="#94c4e4"/></linearGradient>
+                <linearGradient id="b5w" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0088cc" stop-opacity=".8"/><stop offset="100%" stop-color="#004488" stop-opacity=".95"/></linearGradient>
+                <linearGradient id="b5c" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#55ccee"/><stop offset="100%" stop-color="#0077b6"/></linearGradient>
+                <clipPath id="b5clip"><rect x="6" y="58" width="74" height="175" rx="10"/></clipPath>
+              </defs>
+              <rect x="24" y="3" width="38" height="18" rx="7" fill="url(#b5c)"/>
+              <rect x="27" y="6" width="32" height="4" rx="2" fill="rgba(255,255,255,.32)"/>
+              <rect x="27" y="12" width="32" height="4" rx="2" fill="rgba(255,255,255,.2)"/>
+              <rect x="22" y="19" width="42" height="26" rx="8" fill="#c8e8f6" stroke="rgba(0,100,180,.18)" stroke-width="1"/>
+              <path d="M8 50 Q6 56 6 62 L80 62 Q80 56 78 50 Q68 38 43 36 Q18 38 8 50Z" fill="url(#b5b)" stroke="rgba(0,100,180,.15)" stroke-width="1"/>
+              <rect x="6" y="58" width="74" height="175" rx="11" fill="url(#b5b)" stroke="rgba(0,100,180,.15)" stroke-width="1.5"/>
+              <path d="M7 100 Q43 97 79 100" stroke="rgba(0,100,180,.18)" stroke-width="1.2" fill="none"/>
+              <path d="M7 135 Q43 131 79 135" stroke="rgba(0,100,180,.18)" stroke-width="1.2" fill="none"/>
+              <path d="M7 170 Q43 166 79 170" stroke="rgba(0,100,180,.18)" stroke-width="1.2" fill="none"/>
+              <path d="M7 205 Q43 201 79 205" stroke="rgba(0,100,180,.18)" stroke-width="1.2" fill="none"/>
+              <rect x="6" y="155" width="74" height="78" fill="url(#b5w)" clip-path="url(#b5clip)" opacity=".85"/>
+              <path d="M7 155 Q22 148 43 153 Q64 158 79 151 L80 163 Q64 170 43 165 Q22 160 6 167Z" fill="rgba(255,255,255,.2)" clip-path="url(#b5clip)"/>
+              <rect x="12" y="65" width="62" height="80" rx="6" fill="rgba(255,255,255,.9)"/>
+              <text x="43" y="83" text-anchor="middle" font-family="Montserrat,sans-serif" font-size="7.5" font-weight="900" fill="#0077B6" letter-spacing="2">MAJI SAFI</text>
+              <line x1="18" y1="87" x2="68" y2="87" stroke="#0077B6" stroke-width=".5" opacity=".35"/>
+              <text x="43" y="108" text-anchor="middle" font-family="Montserrat,sans-serif" font-size="26" font-weight="900" fill="#02111A">5L</text>
+              <text x="43" y="121" text-anchor="middle" font-family="Open Sans,sans-serif" font-size="6.5" fill="#6B7A8D" letter-spacing="1">PURIFIED WATER</text>
+              <rect x="17" y="127" width="52" height="7" rx="3.5" fill="#f5a623" opacity=".85"/>
+              <text x="43" y="132.5" text-anchor="middle" font-family="Open Sans,sans-serif" font-size="4.5" fill="white" font-weight="700">UNBS CERTIFIED · EAS 13</text>
+              <path d="M80 78 Q92 78 92 100 Q92 122 80 122" stroke="#a8d4ec" stroke-width="6" fill="none" stroke-linecap="round" opacity=".65"/>
+              <ellipse cx="18" cy="115" rx="4" ry="50" fill="rgba(255,255,255,.22)" transform="rotate(-7 18 115)"/>
+              <ellipse cx="43" cy="237" rx="28" ry="5" fill="rgba(0,0,0,.12)"/>
+            </svg>
+            </a>
+          </div>
+        </div>
+        <div class="pc-body">
+          <div class="pc-name">5L Single-Use</div>
+          <div class="pc-desc">Compact and portable. Perfect for offices, travel, and smaller households.</div>
+          <div class="pc-price-row"><div class="pc-from">From</div><div class="pc-price">2,800</div><div class="pc-cur">UGX</div></div>
+          <div class="pc-del"><div class="pc-del-dot"></div>Pickup or tuk-tuk delivery</div>
+          <div class="pc-btn">See all tiers ↓</div>
+          <div class="pc-tiers"><div class="tiers-in">
+            <div class="tr"><span class="tr-name">T1 — Pickup</span><div class="tr-r"><span class="tr-p">2,800 UGX</span></div></div>
+            <div class="tr"><span class="tr-name">T2</span><div class="tr-r"><span class="tr-p">3,000 UGX</span><span class="tr-tag">Tuk-tuk</span></div></div>
+            <div class="tr"><span class="tr-name">T3</span><div class="tr-r"><span class="tr-p">3,200 UGX</span><span class="tr-tag">Tuk-tuk</span></div></div>
+            <div class="tr"><span class="tr-name">T4</span><div class="tr-r"><span class="tr-p">3,500 UGX</span><span class="tr-tag">Bike+Tuk</span></div></div>
+          </div></div>
+        </div>
+      </div>
+
+      <!-- Reusable -->
+      <div class="pcard featured" id="pc4" onclick="toggleCard(this)">
+        <div class="pc-bot" style="background:rgba(202,240,248,.08)">
+          <div class="pc-badge">Own Forever</div>
+          <div class="pc-bot-anim" style="animation-delay:-3.8s">
+            <a href="https://wa.me/256XXXXXXXXX?text=Hi%20Maji%20Safi!%20I%27d%20like%20to%20get%20a%2020L%20reusable%20jar." target="_blank" onclick="event.stopPropagation()">
+            <svg width="110" height="200" viewBox="0 0 130 260" fill="none"
+              style="cursor:pointer;transition:transform .35s,filter .35s"
+              onmouseover="this.style.transform='scale(1.07) translateY(-5px)';this.style.filter='drop-shadow(0 18px 38px rgba(126,200,227,.5))'"
+              onmouseout="this.style.transform='';this.style.filter=''">
+              <defs>
+                <linearGradient id="rj1b" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#8ad4f0"/><stop offset="35%" stop-color="#bcebff"/><stop offset="65%" stop-color="#d0f4ff"/><stop offset="100%" stop-color="#72c4e8"/></linearGradient>
+                <linearGradient id="rj1w" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0077B6" stop-opacity=".7"/><stop offset="100%" stop-color="#003F6B" stop-opacity=".9"/></linearGradient>
+                <linearGradient id="rj1c" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#7EC8E3"/><stop offset="100%" stop-color="#0077B6"/></linearGradient>
+                <clipPath id="rj1clip"><path d="M18 88 Q14 130 14 165 Q14 245 65 252 Q116 245 116 165 Q116 130 112 88Z"/></clipPath>
+              </defs>
+              <rect x="38" y="4" width="54" height="24" rx="10" fill="url(#rj1c)"/>
+              <rect x="42" y="7" width="46" height="5" rx="2.5" fill="rgba(255,255,255,.3)"/>
+              <rect x="42" y="14" width="46" height="5" rx="2.5" fill="rgba(255,255,255,.22)"/>
+              <rect x="42" y="21" width="46" height="5" rx="2.5" fill="rgba(255,255,255,.14)"/>
+              <rect x="40" y="26" width="50" height="30" rx="8" fill="#b4e4f8" stroke="rgba(0,100,180,.2)" stroke-width="1.2"/>
+              <path d="M14 72 Q12 80 12 88 L118 88 Q118 80 116 72 Q102 56 65 54 Q28 56 14 72Z" fill="url(#rj1b)" stroke="rgba(0,100,180,.18)" stroke-width="1"/>
+              <path d="M12 88 Q10 130 10 165 Q10 248 65 256 Q120 248 120 165 Q120 130 118 88Z" fill="url(#rj1b)" stroke="rgba(0,100,180,.18)" stroke-width="1.5"/>
+              <path d="M12 115 Q65 111 118 115" stroke="rgba(0,60,120,.15)" stroke-width="1.2" fill="none"/>
+              <path d="M11 143 Q65 138 119 143" stroke="rgba(0,60,120,.15)" stroke-width="1.2" fill="none"/>
+              <path d="M11 172 Q65 167 119 172" stroke="rgba(0,60,120,.15)" stroke-width="1.2" fill="none"/>
+              <path d="M13 152 Q10 172 10 185 Q10 248 65 256 Q120 248 120 185 Q120 172 117 152Z" fill="url(#rj1w)" clip-path="url(#rj1clip)" opacity=".75"/>
+              <rect x="20" y="90" width="90" height="96" rx="8" fill="rgba(255,255,255,.92)"/>
+              <text x="65" y="110" text-anchor="middle" font-family="Montserrat,sans-serif" font-size="9" font-weight="900" fill="#0077B6" letter-spacing="2">MAJI SAFI</text>
+              <line x1="28" y1="114" x2="102" y2="114" stroke="#0077B6" stroke-width=".6" opacity=".3"/>
+              <text x="65" y="138" text-anchor="middle" font-family="Montserrat,sans-serif" font-size="22" font-weight="900" fill="#02111A">20L</text>
+              <text x="65" y="150" text-anchor="middle" font-family="Open Sans,sans-serif" font-size="7.5" fill="#6B7A8D" letter-spacing="1">REUSABLE JAR</text>
+              <!-- Recycle arrows -->
+              <path d="M42 162 Q65 155 88 162" stroke="#0077B6" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+              <polygon points="86,158 90,163 84,164" fill="#0077B6"/>
+              <polygon points="44,166 40,161 46,160" fill="#0077B6"/>
+              <rect x="30" y="170" width="70" height="7" rx="3.5" fill="#f5a623" opacity=".8"/>
+              <text x="65" y="175.5" text-anchor="middle" font-family="Open Sans,sans-serif" font-size="4.5" fill="white" font-weight="700">UNBS CERTIFIED · EAS 13</text>
+              <text x="65" y="185" text-anchor="middle" font-family="Open Sans,sans-serif" font-size="6" fill="#0077B6" font-weight="700">Own it. Refill forever.</text>
+              <path d="M12 100 Q0 100 0 122 Q0 144 12 144" stroke="#b4e4f8" stroke-width="8" fill="none" stroke-linecap="round" opacity=".8"/>
+              <ellipse cx="26" cy="132" rx="5" ry="56" fill="rgba(255,255,255,.22)" transform="rotate(-8 26 132)"/>
+              <ellipse cx="65" cy="260" rx="40" ry="7" fill="rgba(0,0,0,.1)"/>
+            </svg>
+            </a>
+          </div>
+        </div>
+        <div class="pc-body">
+          <div class="pc-name">20L Reusable Jar</div>
+          <div class="pc-desc">Buy once. Yours forever. Refill at our lowest rates — the smart long-term investment.</div>
+          <div class="pc-price-row"><div class="pc-from">From</div><div class="pc-price" style="color:var(--light)">15,000</div><div class="pc-cur">UGX</div></div>
+          <div class="pc-del"><div class="pc-del-dot" style="background:var(--light)"></div>One-time purchase · You own the jar</div>
+          <div class="pc-btn">See all tiers ↓</div>
+          <div class="pc-tiers"><div class="tiers-in">
+            <div class="tr"><span class="tr-name">T1</span><div class="tr-r"><span class="tr-p">15,000 UGX</span></div></div>
+            <div class="tr"><span class="tr-name">T2</span><div class="tr-r"><span class="tr-p">16,000 UGX</span></div></div>
+            <div class="tr"><span class="tr-name">T3</span><div class="tr-r"><span class="tr-p">17,000 UGX</span></div></div>
+            <div class="tr"><span class="tr-name">T4</span><div class="tr-r"><span class="tr-p">18,000 UGX</span></div></div>
+          </div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MINERAL DATA -->
+<div class="mineral">
+  <div class="mineral-inner">
+    <div>
+      <p class="mk" id="mk">Lab Tested · Every Batch</p>
+      <h2 class="mh" id="mh">What's actually<br/>in your water.</h2>
+      <p class="mb" id="mb">Every batch of Maji Safi water is lab-tested against WHO and UNBS EAS 13 standards. Our mineral composition is optimised for safe, healthy daily consumption. Nothing added. Nothing hidden.</p>
+    </div>
+    <div class="mtable" id="mt">
+      <div class="mt-hdr"><span class="mt-h">Mineral</span><span class="mt-h">Level</span><span class="mt-h">Value</span></div>
+      <div class="mt-row"><span class="mt-m">Calcium (Ca²⁺)</span><div class="mt-bar"><div class="mt-bf" style="width:45%"></div></div><span class="mt-v">15 mg/L</span></div>
+      <div class="mt-row"><span class="mt-m">Magnesium (Mg²⁺)</span><div class="mt-bar"><div class="mt-bf" style="width:15%"></div></div><span class="mt-v">5 mg/L</span></div>
+      <div class="mt-row"><span class="mt-m">Sodium (Na⁺)</span><div class="mt-bar"><div class="mt-bf" style="width:60%"></div></div><span class="mt-v">20 mg/L</span></div>
+      <div class="mt-row"><span class="mt-m">Potassium (K⁺)</span><div class="mt-bar"><div class="mt-bf" style="width:45%"></div></div><span class="mt-v">15 mg/L</span></div>
+      <div class="mt-row"><span class="mt-m">Chloride (Cl⁻)</span><div class="mt-bar"><div class="mt-bf" style="width:90%"></div></div><span class="mt-v">30 mg/L</span></div>
+      <div class="mt-row"><span class="mt-m">Fluoride (F⁺)</span><div class="mt-bar"><div class="mt-bf" style="width:3%"></div></div><span class="mt-v">0.1 mg/L</span></div>
+      <div class="mt-row"><span class="mt-m">TDS (Total Dissolved Solids)</span><div class="mt-bar"><div class="mt-bf" style="width:100%"></div></div><span class="mt-v">100 mg/L</span></div>
+      <div class="mt-row ph-row"><span class="mt-m">pH Level</span><div class="mt-bar"><div class="mt-bf" style="width:70%;background:var(--sky)"></div></div><span class="mt-v">6.5–8.5</span></div>
+      <div class="mt-note">Source: Uganda National Water Distribution Systems · UV + Ultrafiltration · Lukuli Road, Plot 33, Buziga, Kampala</div>
+    </div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div id="how" class="how">
+  <div class="how-inner">
+    <div class="how-hdr">
+      <div><p class="hwk" id="hwk">How It Works</p><h2 class="hwh" id="hwh">Three steps.<br/><span>Pure water.</span></h2></div>
+      <p class="hwb" id="hwb">No apps. No complicated setup. One WhatsApp message and Maji Safi water is on its way to your door — same day across Kampala.</p>
+    </div>
+    <div class="steps">
+      <div class="step" id="st1">
+        <div class="step-ring"><svg viewBox="0 0 24 24" fill="none" stroke="#0077B6" stroke-width="2" stroke-linecap="round"><rect x="5" y="2" width="14" height="20" rx="3"/><path d="M9 7h6M9 11h4M9 15h6"/></svg></div>
+        <div class="step-title">Choose your product</div>
+        <div class="step-body">Pick size and format — 5L portable, 20L refill, sealed jar, or invest in a reusable jar for long-term savings.</div>
+        <div class="step-det"><div class="sdl"></div>4 products · 4 price tiers<div class="sdl"></div></div>
+      </div>
+      <div class="step" id="st2">
+        <div class="step-ring"><svg viewBox="0 0 24 24" fill="none" stroke="#0077B6" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+        <div class="step-title">Message on WhatsApp</div>
+        <div class="step-body">One message. Our team confirms instantly and dispatches same day. No app, no account, no friction.</div>
+        <div class="step-det"><div class="sdl"></div>Same-day confirmation<div class="sdl"></div></div>
+      </div>
+      <div class="step" id="st3">
+        <div class="step-ring"><svg viewBox="0 0 24 24" fill="none" stroke="#0077B6" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+        <div class="step-title">Delivered to your door</div>
+        <div class="step-body">Tuk-tuk and bike delivery across Kampala. Pure, sealed, certified, and ready — right at your door.</div>
+        <div class="step-det"><div class="sdl"></div>Kampala-wide coverage<div class="sdl"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- QUALITY PIPELINE -->
+<div id="quality" class="quality">
+  <div class="quality-inner">
+    <div>
+      <p class="qk" id="qk">Our Process</p>
+      <h2 class="qh" id="qh">Water you can<br/><span>trust completely.</span></h2>
+      <p class="qb" id="qb">Every litre passes through rigorous multi-stage purification at our Lukuli Road, Buziga plant. Advanced UV treatment and 6,000 L/hr ultrafiltration — no shortcuts.</p>
+      <div class="qcerts" id="qcerts">
+        <div class="qcert"><div class="qci"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><div><div class="qct">WHO</div><div class="qcs">International</div></div></div>
+        <div class="qcert"><div class="qci"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div><div class="qct">UNBS EAS 13</div><div class="qcs">Uganda Std.</div></div></div>
+        <div class="qcert"><div class="qci"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div><div class="qct">Batch Tested</div><div class="qcs">Every run</div></div></div>
+      </div>
+    </div>
+    <div class="pipeline" id="pipeline">
+      <div class="ps"><div class="ps-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#0077B6" stroke-width="2" stroke-linecap="round"><path d="M12 2C8 7 5 10.5 5 14a7 7 0 0014 0c0-3.5-3-7-7-12z"/></svg></div><div class="ps-c"><div class="ps-t">Source Water Intake</div><div class="ps-d">Uganda National Water Distribution Systems — controlled intake at Lukuli Road, Buziga.</div></div><div class="ps-tag cert">Stage 1</div></div>
+      <div class="ps"><div class="ps-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#0077B6" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg></div><div class="ps-c"><div class="ps-t">Advanced UV Treatment</div><div class="ps-d">UV system removes pathogens and sediment through multi-layer pre-filtration.</div></div><div class="ps-tag cert">Stage 2</div></div>
+      <div class="ps"><div class="ps-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#0077B6" stroke-width="2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div class="ps-c"><div class="ps-t">Ultrafiltration — 6,000 L/hr</div><div class="ps-d">High-capacity membrane filtration removes bacteria, viruses, and all contaminants at scale.</div></div><div class="ps-tag cert">Stage 3</div></div>
+      <div class="ps"><div class="ps-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#0077B6" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div class="ps-c"><div class="ps-t">WHO & UNBS EAS 13 Quality Testing</div><div class="ps-d">Every batch lab-tested against WHO and Uganda National Bureau of Standards EAS 13 certification.</div></div><div class="ps-tag pass">Certified</div></div>
+      <div class="ps"><div class="ps-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#0077B6" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M3 9h18"/></svg></div><div class="ps-c"><div class="ps-t">Tamper-Proof Sealing & Same-Day Dispatch</div><div class="ps-d">Factory-sealed, labelled with full mineral composition, dispatched across Kampala same day.</div></div><div class="ps-tag pass">Delivered</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- HYDRATION CLUB -->
+<div id="club" class="club">
+  <div class="club-inner">
+    <div class="club-grid">
+      <div>
+        <div class="clk" id="clk"><div class="hero-dot"></div>Members Only</div>
+        <h2 class="clh" id="clh">Join the<br/><span>Hydration</span><br/>Club.</h2>
+        <p class="clb" id="clb">More than water. A community of people in Kampala who believe health starts with what you drink. Monthly events, wellness conversations, member pricing, and priority delivery — always free to join.</p>
+        <div class="club-form" id="clf">
+          <input class="club-input" type="text" placeholder="Your WhatsApp number..."/>
+          <button class="btn-join" onclick="joinClub()">Join Free</button>
+        </div>
+        <div class="club-members" id="clm">
+          <div class="club-avs"><div class="cav av1">AK</div><div class="cav av2">MO</div><div class="cav av3">NB</div><div class="cav av4" style="font-size:15px;font-family:sans-serif">+</div></div>
+          <div class="club-mt"><strong>247+ members</strong> already hydrating smarter in Kampala</div>
+        </div>
+      </div>
+      <div class="club-stats-card" id="csc">
+        <div class="csc-lbl">Member Snapshot</div>
+        <div class="csc-grid">
+          <div><div class="csc-num">12</div><div class="csc-lbl2">Events per year</div></div>
+          <div><div class="csc-num accent">10%</div><div class="csc-lbl2">Member discount</div></div>
+          <div><div class="csc-num">1st</div><div class="csc-lbl2">Priority delivery</div></div>
+          <div><div class="csc-num accent">Free</div><div class="csc-lbl2">Always free to join</div></div>
+        </div>
+        <div class="csc-next">Next event: <strong>Hydration & Health Talk</strong><br/>Kampala City · April 2026 · Members only</div>
+      </div>
+    </div>
+    <div class="club-perks">
+      <div class="perk" id="pk1"><div class="perk-icon"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div class="perk-title">Community Events</div><div class="perk-desc">Monthly meetups, health talks, and hydration challenges across Kampala. Real people, real conversations.</div><div class="perk-tag">Monthly in Kampala</div></div>
+      <div class="perk" id="pk2"><div class="perk-icon"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div><div class="perk-title">Wellness Hub</div><div class="perk-desc">Expert-led health conversations — hydration science, nutrition, and daily wellness guides for Ugandan life.</div><div class="perk-tag">Expert content</div></div>
+      <div class="perk" id="pk3"><div class="perk-icon"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><path d="M12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg></div><div class="perk-title">Member Perks</div><div class="perk-desc">10% off every order, priority delivery slots, early product access, and surprise rewards throughout the year.</div><div class="perk-tag">10% off all orders</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SOCIAL WALL -->
+<div id="social" class="social">
+  <div class="social-inner">
+    <div class="soc-hdr">
+      <div><p class="sock" id="sock">The Movement</p><h2 class="soch" id="soch">Kampala is <span>hydrating.</span></h2></div>
+      <div class="soc-follow" id="socf">
+        <a href="https://instagram.com/majisafi" target="_blank" class="fbtn ig"><svg viewBox="0 0 24 24" fill="white"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>@majisafi</a>
+        <a href="https://tiktok.com/@majisafi" target="_blank" class="fbtn tt"><svg viewBox="0 0 24 24" fill="white"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.34 6.34 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.17 8.17 0 004.78 1.52V6.76a4.85 4.85 0 01-1.01-.07z"/></svg>@majisafi</a>
+      </div>
+    </div>
+    <div class="sgrid">
+      <div class="spost sg1" id="sp1"><div class="spost-ov"><div class="spost-big">Pure water.<br/>Real community.</div><div class="spost-cap">Hydration Club launch · Kampala, March 2026</div></div><div class="spost-meta"><div class="spost-plat">INSTAGRAM</div><div class="spost-stat">1.2K likes</div></div></div>
+      <div class="spost sg2" id="sp2"><div class="spost-ov"><div class="spost-big" style="font-size:19px;color:var(--ink)">Delivery day</div><div class="spost-cap" style="color:rgba(2,17,26,.7)">Tuk-tuk across Kampala</div></div><div class="spost-meta"><div class="spost-plat">INSTAGRAM</div><div class="spost-stat">847 likes</div></div></div>
+      <div class="spost sg3" id="sp3"><div class="spost-ov"><div class="spost-big" style="font-size:17px">Inside the<br/>6K L/hr plant</div><div class="spost-cap">Buziga facility tour</div></div><div class="spost-meta"><div class="spost-plat">TIKTOK</div><div class="spost-stat">28K views</div></div></div>
+      <div class="spost sg4" id="sp4"><div class="spost-ov"><div class="spost-big" style="font-size:19px;color:var(--ink)">WHO<br/>certified.</div><div class="spost-cap" style="color:rgba(2,17,26,.7)">Every batch tested</div></div><div class="spost-meta"><div class="spost-plat">INSTAGRAM</div><div class="spost-stat">634 likes</div></div></div>
+      <div class="spost sg5" id="sp5"><div class="spost-ov"><div class="spost-big">Refill. Save.<br/>Repeat forever.</div><div class="spost-cap">Own your jar — it pays for itself</div></div><div class="spost-meta"><div class="spost-plat">TIKTOK</div><div class="spost-stat">41K views</div></div></div>
+      <div class="spost sg6" id="sp6"><div class="spost-ov"><div class="spost-big" style="font-size:17px">Health talk<br/>this April</div><div class="spost-cap">Hydration Club · Members only</div></div><div class="spost-meta"><div class="spost-plat">INSTAGRAM</div><div class="spost-stat">921 likes</div></div></div>
+    </div>
+    <p class="soc-live">Connect live feed via <a href="https://behold.so" target="_blank">Behold.so</a> or <a href="https://elfsight.com" target="_blank">Elfsight</a> — paste one embed line to replace this grid with real Instagram + TikTok posts.</p>
+  </div>
+</div>
+
+<!-- ORDER -->
+<div id="order" class="order-section">
+  <div class="order-inner">
+    <h2 class="order-hl" id="orh">Ready<br/>to <span>hydrate?</span></h2>
+    <div class="order-right" id="orr">
+      <p class="order-sub">One WhatsApp message. Same-day delivery across Kampala. Pure Maji Safi water — certified, sealed, and ready.</p>
+      <div class="order-btns">
+        <a href="https://wa.me/256XXXXXXXXX?text=Hi%20Maji%20Safi!%20I%27d%20like%20to%20order%20water." class="btn-wa" target="_blank">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Order on WhatsApp
+        </a>
+        <a href="mailto:hello@majisafi.com" class="btn-blue">Email Us</a>
+      </div>
+      <div class="order-info">
+        <div class="oi-t">Find Us</div>
+        <div class="oi-row"><div class="oi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#0077B6" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div>Lukuli Road, Plot 33, Buziga, Kampala, Uganda</div>
+        <div class="oi-row"><div class="oi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#0077B6" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>Monday – Saturday · 7:00am – 7:00pm</div>
+        <div class="oi-row"><div class="oi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#0077B6" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.73a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7a2 2 0 0 1 1.72 2.02z"/></svg></div>WhatsApp orders · Fastest response guaranteed</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="foot-inner">
+    <div class="foot-top">
+      <div><div class="foot-logo">Maji Safi</div><div class="foot-tag">Hydrate. Elevate.</div><div class="foot-desc">Purified water delivered across Kampala. WHO certified · UNBS EAS 13 · Safiflow Ventures Group Limited.</div></div>
+      <div><div class="foot-col-t">Products</div><a href="#products" class="foot-link">20L Refill</a><a href="#products" class="foot-link">20L Sealed Jar</a><a href="#products" class="foot-link">5L Single-Use</a><a href="#products" class="foot-link">Reusable Jar</a></div>
+      <div><div class="foot-col-t">Company</div><a href="#quality" class="foot-link">Our Process</a><a href="#club" class="foot-link">Hydration Club</a><a href="#order" class="foot-link">Contact Us</a><a href="#" class="foot-link">Careers</a></div>
+      <div><div class="foot-col-t">Connect</div><a href="https://instagram.com/majisafi" target="_blank" class="foot-link">Instagram</a><a href="https://tiktok.com/@majisafi" target="_blank" class="foot-link">TikTok</a><a href="https://wa.me/256XXXXXXXXX" target="_blank" class="foot-link">WhatsApp</a><a href="mailto:hello@majisafi.com" class="foot-link">Email</a></div>
+    </div>
+    <div class="foot-bot">
+      <div class="foot-copy">© 2026 Safiflow Ventures Group Limited. All rights reserved. Lukuli Road, Plot 33, Buziga, Kampala.</div>
+      <div class="foot-legal"><a href="#">Privacy Policy</a><a href="#">Terms of Service</a></div>
+    </div>
+  </div>
+</footer>
+
+<!-- THREE.JS -->
+<script>
+(function(){
+  const c=document.getElementById('hero-canvas');
+  const R=new THREE.WebGLRenderer({canvas:c,antialias:true,alpha:true});
+  R.setPixelRatio(Math.min(devicePixelRatio,2));R.setSize(innerWidth,innerHeight);R.setClearColor(0,0);
+  const S=new THREE.Scene(),CAM=new THREE.PerspectiveCamera(58,innerWidth/innerHeight,.1,200);
+  CAM.position.set(0,5,22);CAM.lookAt(0,0,0);
+  S.add(new THREE.AmbientLight(0x7ec8e3,.9));
+  const pl1=new THREE.PointLight(0xffffff,5,55);pl1.position.set(10,14,10);S.add(pl1);
+  const pl2=new THREE.PointLight(0xcaf0f8,3,40);pl2.position.set(-8,-4,12);S.add(pl2);
+  const pl3=new THREE.PointLight(0x0077b6,2.5,35);pl3.position.set(0,-10,6);S.add(pl3);
+  // Rippling water plane
+  const pg=new THREE.PlaneGeometry(55,55,100,100);
+  const pm=new THREE.MeshPhongMaterial({color:0x0066bb,transparent:true,opacity:.3,shininess:300,specular:new THREE.Color(0xcaf0f8)});
+  const plane=new THREE.Mesh(pg,pm);plane.rotation.x=-Math.PI/2;plane.position.y=-5;S.add(plane);
+  // Floating orbs
+  const orbs=[];
+  [{r:2.2,x:-9,z:-5,c:0x5cc0e8,o:.5,s:.55},{r:1,x:11,z:4,c:0xcaf0f8,o:.35,s:1.1},{r:3.2,x:6,z:-9,c:0x0077b6,o:.55,s:.45},{r:.7,x:-13,z:6,c:0xcaf0f8,o:.3,s:1.4},{r:1.8,x:15,z:-4,c:0x7ec8e3,o:.45,s:.8},{r:.9,x:-5,z:9,c:0x0077b6,o:.4,s:1.5},{r:2.6,x:-17,z:-7,c:0x7ec8e3,o:.22,s:.4},{r:1.5,x:11,z:-10,c:0x0077b6,o:.4,s:.6},{r:.5,x:7,z:8,c:0xcaf0f8,o:.5,s:1.8},{r:1.2,x:-7,z:-11,c:0x7ec8e3,o:.4,s:1.1}].forEach((d,i)=>{
+    const m=new THREE.Mesh(new THREE.SphereGeometry(d.r,32,32),new THREE.MeshPhongMaterial({color:d.c,transparent:true,opacity:d.o,shininess:180,specular:new THREE.Color(0xffffff)}));
+    m.position.set(d.x,Math.random()*2,d.z);m.userData={s:d.s,off:i*.9,by:m.position.y};S.add(m);orbs.push(m);
+  });
+  // Rising micro bubbles
+  const bubs=[];
+  for(let i=0;i<90;i++){
+    const b=new THREE.Mesh(new THREE.SphereGeometry(.03+Math.random()*.12,8,8),new THREE.MeshPhongMaterial({color:0xcaf0f8,transparent:true,opacity:.12+Math.random()*.38,shininess:220}));
+    b.position.set((Math.random()-.5)*44,-5+Math.random()*11,(Math.random()-.5)*28);b.userData={spd:.01+Math.random()*.025,drift:(Math.random()-.5)*.006};S.add(b);bubs.push(b);
+  }
+  let t=0,mx=0,my=0;
+  document.addEventListener('mousemove',e=>{mx=(e.clientX/innerWidth-.5)*2;my=-(e.clientY/innerHeight-.5)*2;});
+  (function anim(){
+    requestAnimationFrame(anim);t+=.016;
+    const pos=pg.attributes.position;
+    for(let i=0;i<pos.count;i++){const x=pos.getX(i),y=pos.getY(i);pos.setZ(i,Math.sin(x*.5+t*1.1)*.36+Math.cos(y*.4+t*.85)*.28+Math.sin((x+y)*.3+t*1.4)*.2);}
+    pos.needsUpdate=true;pg.computeVertexNormals();
+    orbs.forEach(o=>{o.position.y=o.userData.by+Math.sin(t*o.userData.s+o.userData.off)*1.5;o.rotation.y+=.004;});
+    bubs.forEach(b=>{b.position.y+=b.userData.spd;b.position.x+=b.userData.drift;if(b.position.y>8){b.position.y=-5;b.position.x=(Math.random()-.5)*44;}});
+    pl1.position.x=Math.sin(t*.38)*14;pl1.position.z=Math.cos(t*.28)*10;
+    CAM.position.x+=(mx*2.8-CAM.position.x)*.022;CAM.position.y+=(my*1.8+5-CAM.position.y)*.022;CAM.lookAt(0,0,0);
+    R.render(S,CAM);
+  })();
+  window.addEventListener('resize',()=>{CAM.aspect=innerWidth/innerHeight;CAM.updateProjectionMatrix();R.setSize(innerWidth,innerHeight);});
+})();
+</script>
+
+<!-- MARQUEE -->
+<script>
+const mqI=['Hydrate. Elevate.','Pure Water · Kampala','WHO Certified','UNBS Approved · EAS 13','6,000 L/hr Capacity','Delivered to Your Door','Refill & Save','Join the Hydration Club','Same Day Delivery','pH 6.5–8.5'];
+let mh='';for(let i=0;i<3;i++)mqI.forEach(it=>{mh+=`<span class="mq-item"><span class="mq-dot"></span>${it}</span>`;});
+document.getElementById('mq').innerHTML=mh;
+</script>
+
+<!-- GSAP -->
+<script>
+gsap.registerPlugin(ScrollTrigger);
+const tl=gsap.timeline({delay:.35});
+tl.to('#hE',{opacity:1,y:0,duration:.7,ease:'power3.out'})
+  .to('#hN',{opacity:1,y:0,duration:1,ease:'power3.out'},'-=.3')
+  .to('#hT',{opacity:1,y:0,duration:.7,ease:'power3.out'},'-=.4')
+  .to('#hS',{opacity:1,duration:.5},'-=.2')
+  .to('#hB',{opacity:1,y:0,duration:.6,ease:'power2.out'},'-=.2')
+  .to('#hR',{opacity:1,x:0,duration:1,ease:'power3.out'},'-=.7')
+  .to('#hSc',{opacity:1,duration:.5},'-=.2');
+
+function rv(id,o={}){gsap.to(id,{opacity:1,y:0,x:0,scale:1,duration:.75,ease:'power3.out',scrollTrigger:{trigger:id,start:'top 88%'},...o});}
+['#ci1','#ci2','#ci3','#ci4'].forEach((id,i)=>gsap.to(id,{opacity:1,y:0,duration:.6,ease:'power3.out',delay:i*.12,scrollTrigger:{trigger:'.cert-bar',start:'top 88%'}}));
+rv('#sk');rv('#sh',{delay:.1});rv('#sb',{delay:.2});
+['#dc1','#dc2','#dc3','#dc4'].forEach((id,i)=>gsap.to(id,{opacity:1,x:0,scale:1,duration:.6,ease:'back.out(1.3)',delay:i*.12,scrollTrigger:{trigger:'#dg',start:'top 85%'}}));
+ScrollTrigger.create({trigger:'#dg',start:'top 80%',onEnter:()=>{document.getElementById('barf').style.width='92%';}});
+rv('#pk');rv('#pph',{delay:.1});rv('#phn',{delay:.2});
+['#pc1','#pc2','#pc3','#pc4'].forEach((id,i)=>gsap.to(id,{opacity:1,y:0,duration:.65,ease:'power3.out',delay:i*.12,scrollTrigger:{trigger:'#products',start:'top 85%'}}));
+rv('#mk');rv('#mh',{delay:.1});rv('#mb',{delay:.2});gsap.to('#mt',{opacity:1,x:0,duration:.8,ease:'power3.out',delay:.15,scrollTrigger:{trigger:'#mt',start:'top 85%'}});
+rv('#hwk');rv('#hwh',{delay:.1});rv('#hwb',{delay:.2});
+['#st1','#st2','#st3'].forEach((id,i)=>rv(id,{delay:i*.15}));
+rv('#qk');rv('#qh',{delay:.1});rv('#qb',{delay:.2});rv('#qcerts',{delay:.3});gsap.to('#pipeline',{opacity:1,x:0,duration:.8,ease:'power3.out',delay:.2,scrollTrigger:{trigger:'#pipeline',start:'top 82%'}});
+rv('#clk');rv('#clh',{delay:.1});rv('#clb',{delay:.2});rv('#clf',{delay:.3});rv('#clm',{delay:.4});
+gsap.to('#csc',{opacity:1,x:0,duration:.8,ease:'power3.out',delay:.2,scrollTrigger:{trigger:'#club',start:'top 80%'}});
+['#pk1','#pk2','#pk3'].forEach((id,i)=>rv(id,{delay:i*.12}));
+rv('#sock');rv('#soch',{delay:.1});rv('#socf',{delay:.2});
+gsap.utils.toArray('.spost').forEach((el,i)=>gsap.to(el,{opacity:1,scale:1,duration:.55,ease:'back.out(1.3)',delay:i*.09,scrollTrigger:{trigger:'#social',start:'top 82%'}}));
+gsap.to('#orh',{opacity:1,x:0,duration:.85,ease:'power3.out',scrollTrigger:{trigger:'#orh',start:'top 85%'}});
+gsap.to('#orr',{opacity:1,x:0,duration:.85,ease:'power3.out',delay:.15,scrollTrigger:{trigger:'#orr',start:'top 85%'}});
+window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('scrolled',scrollY>60));
+</script>
+
+<!-- INTERACTIONS -->
+<script>
+function toggleCard(c){const w=c.classList.contains('open');document.querySelectorAll('.pcard').forEach(x=>x.classList.remove('open'));if(!w)c.classList.add('open');}
+function joinClub(){const inp=document.querySelector('.club-input');if(inp.value.trim()){const msg=encodeURIComponent('Hi Maji Safi! I want to join the Hydration Club. My number: '+inp.value);window.open('https://wa.me/256XXXXXXXXX?text='+msg,'_blank');inp.value='';}}
+</script>
+</body>
+</html>
